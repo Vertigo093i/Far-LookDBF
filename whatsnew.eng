@@ -1,0 +1,315 @@
+
+                           LookDBF
+                           ~~~~~~~
+                   DBF-file viewer/editor
+                   ~~~~~~~~~~~~~~~~~~~~~~
+
+[!] Important note       ³  Plugin is FREEWARE.
+[+] New feature          ³  If you want to pay for this program,
+[-] Error was corrected  ³  use following WebMoney attributes:
+[*] Changes              ³  WMID:009807013498, Z804712443609, R42074294843
+
+---------------------------------------------------------------------------
+LookDBF 2.06 beta. - 18.12.2006
+---------------------------------------------------------------------------
+[-] Code table change (F8, Shift+F8) had no influence on V - VarChar and
+    Q - VarBinary types fields.
+[+] Control of memo-file extension now available. See HELP paragraph
+    Configuration/Memo.
+
+---------------------------------------------------------------------------
+LookDBF 2.05 beta. - 24.08.2006
+---------------------------------------------------------------------------
+[+] Showing memo-fields is available now for 31h files too
+    (FoxPro with autoincrement)
+[-] Uncorrectable console resizing (Alt+F9)
+
+---------------------------------------------------------------------------
+LookDBF 2.04 beta. - 11.12.2005
+---------------------------------------------------------------------------
+[+] FAR code table support was added. Now you can select code table by key
+    Shift+F8 and through plugin configuration interface. Code table is saved
+    in template too. See help topic "Code Tables".
+[+] PACK function (Ctrl+F2) was added. Remove records with deletion flag.
+[+] Alt+F8 feature (go to given record number) was extended by functions
+    Jump Up or Down by given quantyty of records. +N - down by N records.
+    -N - up by N records. N - go to record number N (as usually).
+[+] Nullable field support now available. See Help section _NullFlags.
+[*] Field _NullFlags displayed as hexadecimal now.
+[+] Ctrl+Del key was added for set current field to Null if it is nullable.
+[*] Table structure show (F2) was changed. Now nullable fields are marked
+    by word "Null".
+[+] Variable length field support now available. See Help section _NullFlags.
+[-] DBF Field headers did not fill correctly during export in DBF-file.
+[+] VFP extended DBF-file header support is available now.
+    After file header and field's headers VFP add 263 bytes, that contain
+    container file name ???.DBC, if it exist.
+    During PACK (Ctrl+F2) operation these bytes are copied from old file.
+    During export (F9) to DBF-file in VFP-format these bytes are zeroed.
+[-] Russian letters in structure view (F2) did not display correctly.
+[+] New Help section Search using more then 2 conditions was added. Look.
+
+---------------------------------------------------------------------------
+LookDBF 2.03 beta - 25.05.2005
+---------------------------------------------------------------------------
+[-] Could not edit character field in current field edit mode
+[-] Null last update date was inserted into exported DBF-file. Current date
+    is inserted now.
+
+---------------------------------------------------------------------------
+LookDBF 2.02 beta - 30.04.2005
+---------------------------------------------------------------------------
+[-] String search was not correct in the case of sample longer than field.
+[-] Condition search was not correct for character fields.
+
+---------------------------------------------------------------------------
+LookDBF 2.01 beta - 20.04.2005
+---------------------------------------------------------------------------
+[-] Did not work color attribute s5E - marked record edit text
+
+---------------------------------------------------------------------------
+LookDBF 2.00 beta - 07.04.2005
+---------------------------------------------------------------------------
+[+] You may make some plugin parameters permanent now using configuraton
+    dialog. See Help/Configuration section.
+
+[*] Color settings are in configuration dialog now.
+
+[+] Now you may use individual template for every processing DBF-file.
+    See Help/Template section.
+
+[+] One more masking character available. It means any quantity of any
+    characters including absence of characters.
+
+[+] Both characters masking now available in Search/Replace mode ( as in
+    search, as in replace string) and in Search by Condition mode.
+
+[+] You may change masking characters in Search, Replace and Configuration
+    dialogs. 
+
+[+] Search dialog contain inversion now. You may search records that does not
+    contain sample.
+
+[+] Two new operations XOR (exclusive OR) and NXO (not XOR) are added to
+    conditional search process. See Help/Condition search section.
+
+[+] Export dialog was reconstructed. Date and Time formats are added.
+    Button "Cancel" was changed to "Save epty database". You may cancel dialog
+    using key ESC or mouse click out of dialog.
+
+[+] If you open empty database in edition mode (option /e) you can add empty
+    record now.
+
+[+] In replace process with confirmation you may see previous replace result
+    in the bottom of the screen.
+
+[-] FAR failed when screen resize call during dialog or help.
+
+[-] "Whole words only" option was sometimes wrong.
+
+[-] With FAR 1.70 alfa 6 number fields value was zeroed after decimal point.
+
+[-] B-type (Double) fields processing was corrected for large exponent value.
+
+---------------------------------------------------------------------------
+LookDBF 1.07 beta - 28.06.2004
+---------------------------------------------------------------------------
+[-] Last memo-block did not read for some files. Samples from Ruslan Mischenko
+    show, that Fox truncate last block to informative length. As result last
+    block length less than header declared block length.
+
+[-] Replace to empty string does not work correctly.
+
+[+] Your own mask character for search and replace masking is available now.
+
+[+] Replace is prohibided for fields types D and T if searching and replacing
+    strings have different length.
+
+[-] Remove bug in marking inversion (Gray *) in "Selected Only" mode.
+
+[-] Remove bug in go to record number (Alt+F8) in "Selected Only" mode.
+
+[+] Export execution time now showed after it.
+
+[-] Trailing blanks are rewoved for current field edition.
+
+---------------------------------------------------------------------------
+LookDBF 1.06 beta - 05.06.2004
+---------------------------------------------------------------------------
+[-] Replace process hung for some conditions 
+
+[-] Replace confirmation dialog used colors for current record edition.
+
+---------------------------------------------------------------------------
+LookDBF 1.05 beta - 27.05.2004
+---------------------------------------------------------------------------
+[-] Remove bug in first visible column deletion.
+
+[+] Processing files with "dummy" fields now available. File example from
+    Garry Tomkin. See Help.Dummy fields for details.
+
+[+] You may define sorting buffer size now.
+
+[*] Source text was inspected. All of input-output and memory control
+    functions are changed to standard Win32 API functions. LookDBF now create
+    its own memory heap, and destory it before closing.
+
+---------------------------------------------------------------------------
+LookDBF 1.04 beta - 20.05.2004
+---------------------------------------------------------------------------
+[-] Export did not work for databases, that have actual flag (1-st byte of
+    every record) value 0 (non-blank). Standard actual flag is blank.
+
+[+] Mouse wheel scrolling added. 1 click = 1/4 screen.
+
+[*] F4 key open record edit dialog even if edit is forbidden. However, in
+    this case changed record was not saved.
+
+[-] Error of editing record was correct. If record contained fields with
+    type I,B,Y, these fields was zeroed after editing record saving.
+
+[+] Current field only editing is available now. Key "Enter".
+    3 new colors added for this feature. (See Help). 
+
+[*] Edit record dialog is changed. Now all fields are given at insert mode,
+    excluding D and T types.
+
+[*] Searching is changed (Hello, Vlad Bolhov!). Now searching string limit
+    is 255 characters. The same in condition searching for character strings.
+
+[+] Mask usage is available in searching string now. (See Help).
+
+[+] Search and replace is available now. You can use masks in replaced
+    string too.
+
+[+] New key  (Ctrl*) is added for NON-actual records marked.
+
+[+] DBF-file import is available now. (Key Shift+F9). See Help for detailes.
+
+[+] During export sorting is available now. You can use 3 sorting keys
+    maximum. Sorry, sorting does not fast.
+
+[+] Export is reflected by progress bar in the bottom line now. You can
+    break export process using Esc key.
+
+---------------------------------------------------------------------------
+LookDBF 1.03 beta - 26.07.2003
+---------------------------------------------------------------------------
+[*] Status line rebuilded (see Help).
+
+[-] Keys Ctrl+PgDn ¨ Ctrl+End did not work properly. (It called "algorithm
+    improwement..." :-)))
+
+[+] Memo-field of Visual FoxPro format added. (DBF-file type 30) and memo-file
+    extention FPT.
+
+[+] Option /n added into command line. Show records number.
+
+[+] Key Alt+F8 added. Go to given record number.
+
+[+] Number of memo-block added into status line of memo viewing window.
+
+[-] Remove bug from search string dialog.
+
+[-] Remove bug from search by condition dialog.
+
+[+] Option /m added into command line. Use full screen for memo-field showing.
+
+[*] F3 call viewer and F4 call editor for memo-field showing.
+
+[*] Remove key Ctrl+Shift+E. Because LookDBF open DBF-file in "read only" mode
+    now, if option /e is absent in command line.
+
+[+] New key Shift+F2 added. DBF-file header edit.
+
+---------------------------------------------------------------------------
+LookDBF 1.02 beta - 20.07.2003
+---------------------------------------------------------------------------
+[+] Indicators  and  are added into column names line. It signaled that
+    there are some invisible characters ahead left or behind right column
+    boundaries.
+
+[+] New keys Alt+Home and Alt+End added for wide column scrolling to start
+    and finish position correspondingly.
+
+[-] Could not scroll wide column to the last character.
+
+[+] Number of selected records displayed in status line now.
+
+[*] Full date format DD/MM/YYYY is used now. Enable interval is 01/01/0001 to
+    31/12/9999.
+
+[*] Changed Date and Time edit method. Mask is used now.
+
+[+] Memo-field of FoxPro format added. (DBF-file type F5) and memo-file
+    extention FPT. ( A lot of thanks to Sergey Kovalev for good information,
+    examples and sources).
+
+[*] When Memo-field is viewing memo-field name and record number are shown
+    in viewer status line.
+
+[-] Correct buggs with mouse navigation.
+
+[-] Correct buggs with navigation in "Marked Only" mode.
+
+[*] String search dialog changed.
+
+[*] Export dialog changed. Its view is export format depended now.
+
+[+] Search by condition added. Key Alt+F7.
+
+---------------------------------------------------------------------------
+LookDBF 1.01 beta - 07.07.2003
+---------------------------------------------------------------------------
+[!] Edition functions are prohibided by default.
+
+[+] New option in command line: /e - edition functions permission.
+
+[+] New key Ctrl+Shift+E added prohibit/permit edition functions.
+
+[+] Sign of edition prohibition "#" added to status line.
+
+[+] Read-only files viewing is possible now. In this case edition is
+    strongly prohibided.
+[*] Command line analyse was rewritten. Probably it became better (see Help).
+
+[*] Copy to clipboard by Ctrl+C too. Trailing blanks are truncated.
+
+[*] Help-files were rewritten. Probably it became more clear.
+
+[+] Change screen colors feature was added.
+
+[*] Search text history is common FAR "SearchText" history.
+
+[+] Memo-field viewing added. Only 2 formats of memo are recognized: dBaseIII+
+    (DBF-file type 83) and dBaseIV (DBF-file type 8b).
+    Unfortunantely I have not any information about other formats of
+    memo-files. If somebody have this information, please, send me it or
+    internet link to it.
+
+[*] Word "Memo" is showing in main window when memo-field have reference to
+    memo-block. Otherwise blank is showed.
+
+[-] Correct error with character code table in exported file.
+
+[*] Separator "³" (code B3) recoded to code A6 - character ³ in Win character
+    table, when export to Win text-file is executed.
+
+[*] Wide fields narrow to screen size during file opening.
+
+[+] New keys AltÄ and AltÄ were added for wide fields scrollong.
+
+[*] Colors highliting of active cell have true field length width excluding
+    binary fields (such as I, Y etc.)
+
+[+] ENTER in fields list (F2) make active this field's column.
+    If this column is hidden it will be inserted before current.
+
+[+] Inserted column (Shift+Ins) became current even if was inserted before
+    the first visible column.
+
+[-] Some bugs in fields edition were corrected.
+
+---------------------------------------------------------------------------
+LookDBF 1.00 beta - 20.06.2003   First release.
+---------------------------------------------------------------------------

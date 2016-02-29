@@ -1,0 +1,645 @@
+.Language=English,English (English)
+.PluginContents=LookDBF
+.Options CtrlColorChar=\
+
+@Contents
+$^#LookDBF version 2.06 beta. 18.12.2006#
+
+  ~Key Functions~@Functions@
+  ~Status Line~@Status@
+  ~Edit~@Edit@
+  ~Search & Replace~@Search@
+  ~Condition Search~@Cond@
+  ~Search using more then 2 conditions~@Cond3@
+  ~Export~@Export@
+  ~Import~@Import@
+  ~Command Line~@Command@
+  ~Code Tables~@Tables@
+  ~Configuration~@Config@
+  ~Template~@Templ@
+  ~Dummy fields~@Dummy@
+  ~Colors~@Colors@
+  ~System Field _NullFlags~@_NullFlags@
+
+  Author: #Alex Boltunov#
+  ~MailTo:alexbolt@@mail.ru~@mailto:alexbolt@@mail.ru@
+  ~MailTo:alexbolt@@narod.ru~@mailto:alexbolt@@narod.ru@
+
+  Last plugin version you may find here:
+  ~http://alexbolt.narod.ru/soft/LOOKDBF.ZIP~@http://alexbolt.narod.ru/soft/LOOKDBF.ZIP@
+
+  Plugin is #FREEWARE.#
+  If you want to pay for this program, use following WebMoney attributes:              
+
+  WMID:#009807013498#
+      #Z804712443609#
+      #R420742948431#
+
+@Functions
+$ #Functions.# 
+     #Ctrl+Home# - to first field of first record
+      #Ctrl+End# - to last field of last record
+     #Ctrl+PgUp# - to current field of first record
+     #Ctrl+PgDn# - to current field of last record
+           #Tab# - to next field (right)
+     #Shift+Tab# - to previous field (left)
+
+        #CtrlÄ# - move column left
+        #CtrlÄ# - move column right
+       #ShiftÄ# - narrow column
+       #ShiftÄ# - enlarge column
+     #Shift+Del# - hide column
+     #Shift+Ins# - show column
+   #Shift+Enter# - change column name
+ #AltÄ | AltÄ# - wide column scrolling
+      #Alt+Home# - scroll to the left end
+       #Alt+End# - scroll to the right end
+
+       #Ctrl+F2# - remove records with deletion flag (Pack)
+      #Shift+F2# - edit DBF-file header
+            #F4# - ~edit or append~@Edit@ record
+         #Enter# - ~edit~@Edit@ current field
+      #Ctrl+Del# - set current field to ~NULL~@_NullFlags@
+        #Delete# - set or clear record deletion flag
+        #Ctrl+D# - set deletion flag on all of selected records
+        #Ctrl+I# - clear deletion flag on all of selected records
+
+        #Alt+F8# - jump up -N, down +N, to given record number N
+   #Ctrl+F | F7# - string search                        
+        #Alt+F7# - condition search                        
+ #F3 | Shift+F7# - continue searching
+       #Ctrl+F7# - search & replace
+
+   #Space | Ins# - select or unselect current record
+        #Grey +# - select all of records
+        #Grey -# - unselect all of records
+        #Grey *# - invert selection all of records
+   #Ctrl+Grey *# - select all of NON-actual records
+       #Shift+# - select current and go down
+       #Shift+# - select current and go up
+        #Ctrl+# - go to next selected record
+        #Ctrl+# - go to previous selected record
+            #F5# - show all or selected only records
+            #F6# - sums of visible numeric fields of selected records
+
+            #F2# - show table structure
+            #F3# - show content of current Memo-field. Viewer.
+            #F4# - show content of current Memo-field. Editor.
+      #Ctrl+Ins - (Ctrl+C)# copy current field to clipboard
+            #F9# - ~Export~@Export@
+      #Shift+F9# - ~Import~@Import@
+      #Shift+F8# - ~Code table~@Tables@ select
+        #Alt+F1# - ~Configuration~@Config@ 
+      #Shift+F6# - Save ~template~@Templ@ 
+        #Alt+F6# - Release ~template~@Templ@ 
+       #Ctrl+F6# - Release and delete ~template~@Templ@ 
+     #Shift+F10# - Save ~template~@Templ@ and exit
+
+  ~Contents~@Contents@
+
+@Status
+$ #Status Line.#
+\1b
+      Hidden columns     Total number of records. Mouse click here 
+              number     is equal to Ctrl+PgDn                     
+    ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ 
+    Marked records   ³   Current record number. Mouse click       ³  
+            number   ³   here is equal to Ctrl+PgUp               ³ 
+    ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿  ³   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿    ³ 
+                  ³  ³   Total number of columns             ³    ³
+                  ³  ³   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿    ³    ³
+          Coding  ³  ³   Current column number          ³    ³    ³
+          ÄÄÂÄÄÄ  ³  ³   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿  ³    ³    ³
+            ³     ³  ³   Current search string       ³  ³    ³    ³
+  File name ³     ³  ³   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿            ³  ³    ³    ³
+  ÄÄÂÄÄÄÄÄÄ ³     ³  ³   Search modes   ³            ³  ³    ³    ³
+    ³       ³     ³  ³   ÄÄÄÄÄÄÄÄÄ¿     ³            ³  ³    ³    ³
+                                                         
+@-
+\30 CALL.DBF  Win \3e  324 \3b1            \31A<142043>         \3b4/10\30    28/11097
+\1f*³CALL_ID³BATCH³ZONE_ID³PHONE_IN ³DATE             ³SUMM    ³NUMBER ³
+\1b ³2      ³ 12  ³242    ³    29774³02/10/98-13:00:00³    7.14³ 471560³
+\1e ³2      ³ 12  ³232    ³    42385³02/10/98-14:00:00³   11.40³ 471550³
+ ³2      ³ 17  ³233    ³      613³03/10/98-21:00:00³   20.52³ 473630³
+\30 ³2      ³ 23  ³096    ³\4b   142043\30³04/10/98-22:00:00³  149.70³ 473121³
+\1b ³2      ³ 33  ³231    ³    28566³05/10/98-21:00:00³   13.68³ 471834³
+\-
+@+
+
+  Remarks:
+  1. Search modes:   - case sensitive,  € - case insensitive
+                    - look all fields, ! - look current only
+  2. Mouse click on left side of headers line is equal key Home.
+     On right side - key End.
+  3. Double click on first visible record is equal to key PgUp,
+     On last visible record - key PgDn.
+  
+  ~Contents~@Contents@
+
+@Edit
+$  #Remarks for edition capacity.#
+$^\34Attention!\-
+$^LookDBF change the current file immediately
+$^after corresponding buttons pressing.
+$^\34Please, make backup copy before editing!\-
+
+   #Hidden fields# do not show in edition dialog.
+   It is not changed in edit mode (button [Save]).
+   It is cleared in append mode (button [Append]).
+
+   #Fields Date and DateTime# are entered according edit format, that was
+defined in ~configuration.~@Config@ If incorrect entry was produced
+(14 month or 25 hour, for example), empty value will be stored in the DBF.
+
+   #Fields Integer, Double, Currency# during edit must be entered in the same
+form that LookDBF display it. Otherwise incorrect result is possible. It may be
+cleared in the cases when LookDBF cannot recognize your entry.
+
+  ~Contents~@Contents@
+
+@Search
+$  #Search and replace.#
+$^\34Attention!\-
+$^LookDBF change the current file immediately
+$^after corresponding buttons pressing.
+$^\34Please, make backup copy before replacing!\-
+   
+   #Hidden fields (columns)# do not search and do not replace.
+   
+   #Search# by string is produced to right and down from current position.
+
+   #Replace# is produced from from begining to end of processing file. You can
+limit replacing by "Marked only" or "Unmarked only" options. If one field
+contain several substring for replace, all of them will be continuously
+replaced.
+
+   #Special fields# Date, DateTime, Integer, Double, Currency are transform
+into text form before searching check. Replace is prodused in this form too.
+Then this text is trasform back for storing in processing file. If this back
+transformation cannot produced succesfuly (for example, month number 14 or
+minute number 65), EMPTY value will be stored in that field.
+   #Important!# LookDBF transform Date and DateTime fields according "Show"
+format, that define in configuration. If this format does not contain
+some date or time elements, it will replaced by default values.
+(See ~configuration~@Config@).
+
+   #Masking#
+   You may use masking characters in seaching sample.
+   The first masking character - "single-mask" (default is "?") means that any
+one character must be in this place.
+   The second masking character - "multy-mask" (default is "%") means that any
+several characters must be in this place including absolute absence of
+characters.
+   You can change masking characters in search(replace) dialog temporary
+(for current session) or permanently by ~configuration~@Config@ dialog.
+   You may use the same masking characters in the replacing string. In this
+case original character will be stay on this place during replacing. If
+replacing string is longer then searching string and original character does
+not exists, blank will be occured.
+
+   #Peculiliarities of multy-mask using#
+
+   1.Multy-mask using at the end or begining of searching sample is not
+important when you produce search. If you give sample as "a", "%a","a%" or
+"%a%", it will be found in any case. Because LookDBF always search sample in
+the field string.
+   But when you produce replace it is very significant:
+ Sample  Will replaced 
+   a   - character "a" only;
+   %a  - string from begining to character "a";
+   a%  - string from character "a" to the end;
+   %a% - whole string.
+
+   2. LookDBF compare string and sample from left to right. Consequently
+substring will found maximum from left and minimum from right. For exapmle:
+   Sample: a%b
+   String: 1a2a3a1b2b3b
+   Substring "a2a3a1b" will found (and replaced) although you can find some
+other different substrings that matched with given sample.
+
+   ~Contents~@Contents@
+
+@Cond
+$  #Codition search.#
+   
+   #Hidden fields (columns)# do not search.
+   
+   #Search# by condition is produced down from current position.
+   
+   #Logical operations#
+   You may use some different logical operations between two relations.
+N/A is not operation. It means that only one relation will be used for search.
+Table below show results all of able operations. A and B is first and second
+relations correspondingly.
+         
+   ÚÄÄÄÂÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄ¿
+   ³ A ³ B ³A and B³ A or B³A xor B³A nxo B³
+   ÃÄÄÄÅÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄ´
+   ³Yes³Yes³  Yes  ³  Yes  ³   No  ³  Yes  ³
+   ÃÄÄÄÅÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄ´
+   ³Yes³No ³   No  ³  Yes  ³  Yes  ³   No  ³
+   ÃÄÄÄÅÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄ´
+   ³No ³Yes³   No  ³  Yes  ³  Yes  ³   No  ³
+   ÃÄÄÄÅÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄ´
+   ³No ³No ³   No  ³   No  ³   No  ³  Yes  ³
+   ÀÄÄÄÁÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÙ
+                                 
+   #Masking#
+   If relation is "equal" (=) or "not equal" (<>) for character fields, you
+may use masking characters.
+   The first masking character - "single-mask" (default is "?") means that any
+one character must be in this place.
+   The second masking character - "multy-mask" (default is "%") means that any
+several characters must be in this place including absolute absence of
+characters.
+   Using both masking characters alongside have sense:
+   %a% - string contain "a" at the any place including first place;
+   ?%a% - string contain " " at the any place from position 2.
+
+   #Attention!#
+   Because masking characters are entered in condition search there are
+differences for character fields comparison between current and early versions
+of LookDBF.
+   In early versions (up to 1.07) relation "equal" means "field started from
+sample" and relation "not equal" means "field not started from sample".
+   For example: field content "abc12" equal to sample "ab".
+   Now you must use multy-mask for the same result:
+   Field content "abc12" NOT equal to sample "ab"
+   Field content "abc12" equal to sample "ab%"
+
+   #Trailing blanks are redused as in sample, as in field contents!#
+
+   #Masking characters are treated as mask in characters field "equal" (=) and#
+#"not equal" (<>) only. In all another cases they are treated as usual characters.#
+
+  ~Contents~@Contents@
+
+@Cond3
+$  #Search using more than 2 conditions.#
+   As you know, LookDBF can search records using 2 conditions maximum.
+   Regulary I receive E-Mails, where users ask me to increase this value.
+But I do not want to do it, and do not planing it in future. Now I decide
+to publish my reasons:
+
+    #1.# In my deep convince 1-2 conditions search cover 99 percents of needing.
+    #2.# Search using more than 2 conditions #dramatically# complicate
+searching algorithm and conditions definition dialog.
+    #3.# Search using more than 2 conditions is possible in LookDBF using some
+steps. You must use for it [Select found recs] and [Unselect found recs]
+buttons. For example:
+
+    We have table with fields A,B,C,D. We need found all of records where
+
+    #A>1 and B>2 and C>3 and D>4#
+
+    Execute 2 steps:
+
+    1) Search with conditions #A>1 and B>2# and press [Select found recs]
+    2) Search with conditions #C<=3 or D<=4# and press [Unselect found recs]
+
+    Mission complete! Selected records will satisfy first big condition.
+
+    I do not say, that it is comfortable. But it is needed sparsely.
+   
+
+  ~Contents~@Contents@
+
+@Export
+$ #Export.#
+
+    #In any casees#
+
+    If "Save empty database" header is exported only.
+    Selected records are exported only.
+    If there are no selected records, all of records are exported.
+    Hidden fields are NOT exported!
+    Changed field names are exported (~Shift+Enter~@Contents@).
+
+    #Sorting#
+
+    Sorting does NOT execute, if 1-st key is "N/A".
+    Sorting by 3-rd key does NOT execute, if 2-nd key is "N/A".
+    First sorting is producing using 1-st key. The same 1-st key value records
+are sorted by 2-nd key if it exists. The same 1-st and 2-nd key values records
+are sorted by 3-rd key if it exists.
+    Records with the same values of all sorting keys are exported in the
+order of original file.
+    You may define sorting buffer size here. This value mins number of sorting
+records, that selected through one whole file survey. This value cannot be
+less than 2 and greater than file records number. Before export execution
+given value will be corrected using this criteria. Optimal buffer size is
+depended of total sorting records quantity. Default 256 was selected by test
+of files with 15000 - 20000 records.
+
+    #.TXT Text file export#
+
+    In "Save spaces" mode LookDBF use field (column) widthes that you
+probably modified using (~ShiftÄ~@Contents@). In this case esxport file
+may probably lost significant information (column too narrow). If "Save spaces" mode
+is not selected LookDBF export all of significant characters.
+    Words above are not efficient for D or T type fields. These fields are
+exporting according export formats. If you need to cut some parts of these
+fields, you must change formats.
+   
+    Default separator is ³ (0xB3). If you export in Win code table it will be
+transform to code 0xA6, it is the same character in Win code table.
+
+    If 2 characters in separator window are entered, LookDBF try interpret it
+as hexadecimal character code. If successful this code is used as separator.
+Otherwise first character is used.
+
+    #.HTM hypertext file export#
+
+    Points "Save spaces" and "Separator" are ignored.
+    Spaces are removed. Significant characters are exported only.
+    If whole field is empty special string &nbsp; is exported. In this case
+Internet Explorer display epmty cells of table properly.
+
+    Taggs for HTM-export are stored in LookDBF_xx.lng files. You can change
+it if you need. If you do it do not forget run ClearPluginsCache.bat and
+restart FAR.
+
+    #.DBF Data Base file export#
+
+    If you change field (column) names LookDBF use it's first 10 characters
+for export (it is maximum in DBF standard)
+    
+    Point "Save spaces" is ignored. Size of exported fields is the same as
+original.
+
+    Point "File type" is used for entry of new DBF-file type (first byte).
+If point "File type" is not selected, new file type will be copied from original.
+If you select it, you must enter two hexadecimal digits as new file type. If
+LookDBF cannot interpret it as hexadecimal, it use the original file type for new
+file.
+
+  ~Contents~@Contents@
+ 
+@Import
+$  #Import.#
+   LookDBF can import DBF-files only. Importing file will be added at the end
+of processing file. 
+   LookDBF import fields, that have the same name and format of processing
+file fields. Other fields of importing file do not imported. Other fields of
+processing file are filled by empty values.
+
+  ~Contents~@Contents@
+
+@Command
+$ #Command line:  LookDBF:[options] <filename>#
+
+   #Options:#
+   #/d# or #/D# - start with Dos code table (default is Win)
+   #/n# or #/N# - show record numbers
+   #/m# or #/M# - use full screen for memo showing
+   #/e# or #/E# - allow edit, append and delete functions:
+              Enter, F4, Del, Ctrl+D, Ctrl+I
+
+    Blanks are allowed between command and option, between options and between
+option and filename. Blanks are prohibided between / and option's letter.
+
+    Option must begin with /. If there are some options in one command line
+every option must begin with /.
+
+    Right:  LookDBF: /d/e example.dbf
+
+    Error:  LookDBF: /de example.dbf
+
+    Options #/d#, #/n# and #/m# given in command line overlap corresponding
+configuration parameters.
+
+  ~Contents~@Contents@
+
+@Tables 
+$ #Code Tables#
+
+   LookDBF can work simultaneously with 2 code tables only.
+
+   One of these is OEM (Dos) table always (CP-866 fo russian).
+   The second was current Windows code table (CP-1251 fo russian).
+Unfortunantely, standard transforming functions (CharToOem,OemToChar)
+not all characters (for example, ukrainian letters Ii) transforms correctly.
+   
+   Now (from version 2.04) you may select another second table from
+FAR registered tables list. You can use key Shift+F8 or configuration
+dialog for it. Current code table is saved in template too.
+
+   If your second table is current Windows code table, "Win" will be
+displayed, else "Alt" will be displayed.
+
+  ~Contents~@Contents@
+
+@Config
+$ #Configuration#
+
+    You can use configuration dialog to make some plugin parameters permanent.
+You can call the configuration dialog by two ways: from the FAR menu
+(Options/Plugin configuration/LookDBF) or from LookDBF session by ~key~@Functions@ Alt+F1.
+    You may change some of these parameters by other manner (NOT through
+configuration dialog). In this case your changes are one session changes.
+
+    #Default coding# define LookDBF starting coding. It may be changed by
+~command line~@Command@ option #/d#. During session coding may be changed by
+~key~@Functions@ F8.
+
+    #Show records numbers# define records numbers showing. It may be changed by
+~command line~@Command@ option #/n#. During session it may be changed by
+configuration dialog only.
+
+    #Show memo at whole screen# define whole window usage when memo-fields is
+showing. Unchecked means half-window usage. It may be changed by
+~command line~@Command@ option #/m#. During session it may be changed by
+configuration dialog only.
+
+    #Export separator# - character that insert between fields when processing
+DBF is exported to text file. If 2 characters in separator window are entered,
+LookDBF try interpret it as hexadecimal character code. If successful this code
+is used as separator. Otherwise first character is used. During session it may
+be changed by ~export~@Export@ dialog.
+
+    #Autosave template# define that LookDBF will write ~template~@Templ@
+file before closing. During session it may be changed by configuration dialog
+only.
+
+    #Masking characters# - it are masking characters for
+~search and replace~@Search@. During session it may be changed by search or
+replace dialog.
+
+    #Colors# - you may change default colors. See ~here.~@Colors@
+
+    #Table# - Second code table select. See ~here.~@Tables@
+
+    #Œ¥¬®# - File-tables extensions and corresponding memo-files extensions.
+    Every pair of extensions must be given by group \31TTT:MMM\-, where
+        \31TTT\- - File-table extension
+        \31MMM\- - Corresponding memo-file extension.
+    Several groups separated by comma is available. Number of groups is limited
+by 255 bytes string length. You may use any length of extensions including
+zero-length (extension absence).
+    If current file extension is absent in this string \31FPT\- (for FoxPro) or
+\31DBT\- (for others) extension memo-file will try open.
+    By default this string contain groups for Visual FoxPro files:
+      DBC:DCT - Database container
+      FRX:FRT - Report              
+      SCX:SCT - Form                
+      MNX:MNT - Menu                
+      VCX:VCT - Visual class library
+      PJX:PJT - Project             
+    \34Attention!\- All of spaces in this string are treated as part of extension.
+
+    #Date and Time formats#
+    Here you can define formats for type D (Date) and type T (DateTime) fields.
+You must define these formats separately for viewing, editing and exporting.
+During session you can change export formats by ~export~@Export@ dialog. Other
+formats you may change by configuration dialog only.
+
+    #Format elements:#
+
+    #dd# or #DD# - day of month. Only double character will be recognized as
+day of month. Single character "d" will be displayed as character "d". String
+"ddd" will be transformed to "00d" where 00 is day of month.
+
+    #mm# or #MM# - month number. Recognizing is day of month analog.
+    #yy# or #YY# - two last year digits. Recognizing is day of month analog,
+but string #yyyy# or #YYYY# will be recognized as full year number.
+    #hh# or #HH# - Hours. Recognizing is day of month analog.
+    #mi# or #MI# - minutes.
+    #se# or #SE# - seconds.
+   #iii# or #III# - milliseconds.
+    #ii# or #II#  - hundred portions of second.
+     #i# or #I#   - decimal portinos of second.
+
+    #Attention!#
+    If you remove some elements from editing formats then you cannot enter it.
+In this case following defaults will take place:
+    - if year is absent, it's treated as 2000;
+    - if year is "yy" then yy>50 treated as 19yy, else 20yy;
+    - if month is absent, it's treated as 01 - January;
+    - if day of month is absent, it's treated as 01;
+    - if any of time components is absent, it's treated as 0;
+
+  ~Contents~@Contents@
+
+@Templ
+$ #Template#
+
+    Template is treated as DBF-file processing parameters set (see below).
+You may save these parameters for every processing file individually.
+    Template is saved as hidden file in current directory with the same name
+and .tmp extension. When starting plugin check this file. If it exists,
+processing parameters reading from it.
+    You may save template using key Shift+F6 or ~autosaving~@Config@.
+You may release template (Alt+F6) or release and delete template (Ctrl+F6).
+
+    #Template parameters#
+
+    1. Russian letters coding.
+    2. Show (or not) records numbers.
+    3. Full (or half) screen for memo viewing.
+    4. Autosave template (or not).
+    5. Masking characters.
+    6. Date and DateTime formats.
+    7. Parameters of Search, Replace and Export dialogs.
+    8. Parameters of columns showing: widthes, hiddens, renames, changed sequence.
+    9. Current viewing position.
+   10. Second code table.
+
+  ~Contents~@Contents@
+
+@Dummy
+$ #Dummy fields#
+   DBF file header contain definition of record length in bytes and some field
+descriptions with every field length.
+   If sum of all field length greater than record length, this file is invalid
+and did not processed by LookDBF.
+   If sum of all field length equal to record length, this file is normal.
+   If sum of all field length less than record length, it means that every
+record have "tail" usually filled by blanks. This tail be used by standard
+database software scarcely.
+   In this case LookDBF generate dummy fields (type ## - Dummy) with sum of
+length equal to tail length. LookDBF assign names ##1##, ##2##, etc. to these
+fields. And you can manipulated it as usual fields with character type.
+   There are no problem to export it to text or hypertext file. If you will
+export it to DBF file, you must locate all of dummy fields after all of
+normal fields. Otherwise, exported file will be damaged, because dummy fields
+does not saved in the header of result file.
+
+  ~Contents~@Contents@
+
+@Colors
+$ #Colors:#
+    You may change LookDBF colors using "Colors" string of configuration
+dialog. If some colors not defined in this string, it will have default values,
+listed below. You can change colors all of plugin objects excluding dialogs
+and messages that use current FAR attributes
+
+    Every color attribute in this string is defined by 3-characters group.
+Groups in the string may follow with or without separators between groups and
+in any orders of gpoups.
+
+    1-st character - "color sign" (See list below)
+    2-nd character - hexadecimal digit - background color
+    3-rd character - hexadecimal digit - text color
+
+    List of attributes:
+
+ a07 - F-keys numbers  ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ F-keys line
+ b30 - F-keys functions
+ c1F - fields headers line
+ d1B - basic text      ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ Main window
+ e30 - current record
+ f4B - current field
+ g1E - marked basic text
+ h3E - marked current record
+ i4E - marked current field
+ j30 - file name       ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ Status line
+ k30 - code table
+ l31 - search string
+ m3B - number of current field and total number of fields
+ n30 - number of current record and total number of records
+ o3E - marked records number
+ p3B - number of hidden fields
+ q78 - unchanged text  ÄÄÄÄÄÄÄÄÄ Current field edit
+ r5B - edit text
+ s5E - marked record edit text
+
+    In hexadecimal digits you must use capital letters A...F, otherwise it can
+intersect with "color sign" letters that must be small only.
+
+    LookDBF analize "Colors" string by following manner:
+    For every attributes listed below LookDBF try to find it's "sign" letter
+in the string. If it does not founded - this attribute does not changed.
+If it is founded, LookDBF treats next 2 characters as hexadecimal value of
+current attribute. If this treation will failed - this attribute does not
+changed too.
+    
+  ~Contents~@Contents@
+
+@_NullFlags
+$ #System Field _NullFlags#
+    Now LookDBF support the system field named _NullFlags. Visual FoxPro use
+this field for following targets:
+
+    #Support value "Value absence" (Null)#
+
+    Field may be declared as nullable, that is possible value absence for it.
+This fact is reflected by bit 1 (second from right) set in 18-th byte of
+field header.
+    Now LookDBF marked these fileds by word "Null" in file structure show (F2).
+    Field with absence of value are displayed as string "Null" now.
+    Presence and absence of value fact is supported by setting corresponding
+bit in system field "_NullFlags".
+    If you start edit null-value field, this bit is cleared, and field will
+have value that you enter.
+    If you want to set field value to "Null", you must use Ctrl+Del key.
+
+    #Variable length fields support#
+
+    VFP version 9 now support variable length fields V - VarChar and 
+Q - VarBinary. These field support use bits in system field "_NullFlags" too.
+    When these fields are created maximum length is declared. This length is
+phisically occupied in file. If length of current value less then maximum,
+corresponding bit in "_NullFlags" is set and field last byte contain the
+length of current value.
+
+  ~Contents~@Contents@

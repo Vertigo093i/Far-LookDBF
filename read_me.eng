@@ -1,0 +1,108 @@
+                                        It is dedicated to Vera Boltunova
+                                        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+    LookDBF is plug-in for FAR manager 1.70 beta 5 and higher.
+
+It is intended for DBF-files viewing, edition and export.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+Usage:
+ÄÄÄÄÄÄÄ
+   LookDBF may be started by FAR command line and by plug-in menu (F11) only.
+For comfortable usage insert following command line into the "File Associations"
+list:
+               LookDBF:[options] !.!
+Options:
+   /d or /D - start with Dos code table (deafault is Win code table)
+   /n or /N - show record numbers
+   /m or /M - use full screen for memo showing
+   /e or /E - permit edit, append and delete functions
+
+Of course, you may change code table during LookDBF run.
+
+Distribution:
+ÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ Last plugin version you can find here:
+ http://alexbolt.narod.ru/soft/LOOKDBF.ZIP
+
+ Plugin is FREEWARE.
+ If you want to pay for this program, use following WebMoney attributes:              
+
+ WMID:009807013498
+     Z804712443609
+     R420742948431
+
+Installation:
+ÄÄÄÄÄÄÄÄÄÄÄÄÄ
+Create directory ...far\plugins\LookDBF and unzip LookDBF.zip into it.
+Then reload FAR.
+
+Functionality:
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+   LookDBF is "remake" of beautiful DBFView plug-in by Dmitry Volkov.
+Unfortunantely, DBFView does not support of binary fields (DateTime, Integer,
+Double, Currency), that Visual FoxPro 5.0 and higher generateing. This
+circumstance and that I cannot contact with D.Volkov are causes of LookDBF
+birth.
+
+   LookDBF functions are listed below using following legend:
+
+      + LookDBF only function, û both plug-ins function
+
+û  Viewing DBF-file as a table using whole console screen;
+û  Changing old and append new records
+û  Search string in current field and in all of fields
++  Search records using condition
+û  Mark interesting records using search and manually
+û  Show interesting records only
+û  Change columns viewing order
+û  Change columns visible width
+û  Hide and show columns
+û  Rename columns
+û  Export interesting records and visible columns in text, DBF or HTML form.
++  Visual FoxPro binary fields support
++  Mouse support
++  Console screen resizing support (Far 1.70 beta 5)
+û  Save settings
+û  Memo contents viewing
++  Long fields scrolling in visible column
++  Edit header of file.
++  Edit current field.
++  Search with replace.
++  Mask usage for search and replace.
++  DBF-files import
++  Sorting during export
++  Visual FoxPro nullable fields support
++  Visual FoxPro variable length fields support
++  FAR code tables support
++  Memo-file extension control
+
+Thanks:
+ÄÄÄÄÄÄÄ
+   Evgeny Roshal and Far support group for wonderful product - Far Manager;
+   Plugring.farmanager.com site group for comfotable plug-in collection and
+useful documentation;
+   Dmitry Volkov for rich DBFView function set, that was very ineresting to
+realize it.
+   Vadim Yegorov and Alex Yaroslavsky for source code of PicView Simple
+plug-in, that help me very much in my working.
+   My wife Vera for high patience of my long computer sessions.
+   Sergey Kovalev, Vlad Bolhov, Alexey Ischenko, Dmitry Krylov, Vladimir
+Ritchkov, Edward Turkiewitch, Garry Tomkin, Ruslan Mischenko, Vladimir
+Fonarev, Andrew Sukhov and Alexander Lagin for constructive critique,
+suggestions and help.
+
+LookDBF package contents:
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+   Plugin itself.
+   Source texts. It is not a sample of good programming, but I hope that it
+may be useful for somebody. Plug-in was written by C++Builder 6. No special
+actions for it size minimizing. I make it from C++Builder shell directly.
+
+Author:
+ÄÄÄÄÄÄÄ
+   Alexei Boltunov
+   Mail to: alexbolt@mail.ru, alexbolt@narod.ru
+
+   Last plugin version you can find here:
+   http://alexbolt.narod.ru/soft/LOOKDBF.ZIP
