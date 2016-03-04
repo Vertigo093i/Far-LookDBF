@@ -1,0 +1,8 @@
+LIBRARY        LookDBF
+;DESCRIPTION   'LookDBF Far Plugin'
+EXPORTS
+  GetMinFarVersion
+  SetStartupInfo
+  GetPluginInfo
+  Configure
+  OpenPlugin
