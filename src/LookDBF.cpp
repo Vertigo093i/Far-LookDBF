@@ -1,5 +1,5 @@
 #include "LookDBF.h"
-#include <farkeys.hpp>
+#include "farkeys.hpp"
 
 #define DM_LOOKDBF DM_USER + 1
 
@@ -20,9 +20,26 @@ char const *DefMemExt = "DBC:DCT,FRX:FRT,SCX:SCT,MNX:MNT,VCX:VCT,PJX:PJT";
 static char *C_OPER[7] = { " N/A"," AND"," OR"," XOR"," NXO",
 						"0 \x1A 99","99 \x1A 0" };
 static char *C_REL[6] = { "  ="," <>","  >"," >=","  <"," <=" };
+//================== Прочее ==================
+
+static BYTE MyWrite(HANDLE h, LPVOID buf, DWORD len = 0)
+{
+	DWORD nbr;
+	if (!len)len = lstrlen((TCHAR *) buf) * sizeof(TCHAR);
+	if (!WriteFile(h, buf, len, &nbr, NULL) || nbr < len) return 1;
+	return 0;
+}
+
+static BYTE MyRead(HANDLE h, LPVOID buf, DWORD len)
+{
+	DWORD nbr;
+	if (!ReadFile(h, buf, len, &nbr, NULL) || nbr < len) return 1;
+	return 0;
+}
+
 //===========================================================================
 
-BOOL CheckForEsc(void)
+static BOOL CheckForEsc(void)
 {
 	INPUT_RECORD *InputRec;
 	DWORD NumberOfEvents;
@@ -93,8 +110,8 @@ bool Indicator::Move(DWORD step)
 
 bool LOOK::YesAlphaNum(BYTE c)
 {
-	if (Yes(WinCode)) return WinAlphaNum(c);
-	return DosAlphaNum(c);
+	if (Yes(WinCode)) return IsCharAlphaNumeric(c) != FALSE;
+	return FSF.LIsAlphanum(c) != FALSE;
 }
 //===========================================================================
 
@@ -459,7 +476,7 @@ void LOOK::MarkClearAll(void)
 }
 //===========================================================================
 
-WORD BitNum(WORD sam, WORD num)
+static WORD BitNum(WORD sam, WORD num)
 {
 	WORD i, n, k = 0x8000;
 	if (!num) return 0;
@@ -709,7 +726,7 @@ int LOOK::TableSelect(void)
 	if (!ctsNum) fm[0].Selected = LIF_SELECTED;
 	for (i = 1; i < n; i++) {
 		Info.CharTable(i - 1, (char*) (&cts), sizeof(CharTableSet));
-		CopyMemory(fm[i].Text, cts.TableName, 128);
+		lstrcpyn(fm[i].Text, cts.TableName, 128);
 		if (i == ctsNum) fm[i].Selected = LIF_SELECTED;
 	}
 	i = Info.Menu(Info.ModuleNumber, -1, -1, 0, FMENU_WRAPMODE,
@@ -2559,7 +2576,7 @@ short LOOK::FindCompare(WORD fn)
 	db.FiNum(fn); L = db.FiDispE(c);
 	ret = 1; if (Yes(FindInvert)) ret = 0;
 	if (Find.Len - Find.nMM > L) goto NOT_FOUND;
-	if (No(FindCaseSens)) if (Yes(WinCode)) Upper(c); else FSF.LStrupr(c);
+	if (No(FindCaseSens)) if (Yes(WinCode)) CharUpperBuff(c, lstrlen(c)); else FSF.LStrupr(c);
 	L -= (Find.Len - Find.nMM) - 1; NoWord = false;
 	YesWholeWords = Yes(WholeWords);
 	j = 0;

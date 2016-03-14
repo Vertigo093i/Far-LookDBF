@@ -51,6 +51,12 @@
     <ClInclude Include="src\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\LookDBF.def">
@@ -58,18 +64,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="LookDBF_en.lng">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="LookDBF_ru.lng">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="LookDBF_en.hlf">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="LookDBF_ru.hlf">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <Content Include="LookDBF_en.hlf" />
+    <Content Include="LookDBF_en.lng" />
+    <Content Include="LookDBF_ru.hlf" />
+    <Content Include="LookDBF_ru.lng" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\LookDBF.rc">

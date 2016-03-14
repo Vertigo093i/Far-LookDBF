@@ -1,7 +1,5 @@
-#define WIN32_LEAN_AND_MEAN
-
+#include "stdafx.h"
 #include "db_use.h"
-#include "plugin.hpp"
 
 #define DTFmtL 32
 
@@ -180,8 +178,8 @@ struct LOOK {
 
 	void Set(DWORD flg) { Flags |= flg; }
 	void Clear(DWORD flg) { Flags &= ~flg; }
-	DWORD Yes(DWORD flg) { return Flags&flg; }
-	DWORD No(DWORD flg) { return !(Flags&flg); }
+	bool Yes(DWORD flg) { return (Flags&flg) == flg; }
+	bool No(DWORD flg) { return (Flags&flg) != flg; }
 	bool YesAlphaNum(BYTE c);
 
 	WORD SortAlloc(void);

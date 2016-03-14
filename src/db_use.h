@@ -1,6 +1,4 @@
-#define WIN32_LEAN_AND_MEAN
-
-#include "plugin.hpp"
+#include "stdafx.h"
 
 //--------- Двухсвязный список объектов ---------------
 
@@ -33,8 +31,7 @@ public:
 };
 
 //================== Преобразование данных ==================
-BYTE Upper(BYTE c);
-char *Upper(char *text);
+
 // Dec-строка c точкой в целое. dec чисел после точки.
 // При неудаче возвращает def
 // Например: a_i64("12.35",0,3) --> 12350
@@ -81,17 +78,6 @@ char *DTf29(char *f, char *s);       // формат в маску редактирования
 int DTw(char *f);                    // ширина по формату
 char *DTstr(char *s, SYSTEMTIME *t, char *f); // SYSTEMTIME в строку по формату
 char *DTstr(char *s, char *d, char *f);  // стандарт. строка в строку по формату
-
-//================== Прочее ==================
-
-bool NotNum(char c);
-bool LatAlphaNum(BYTE c);
-bool WinAlphaNum(BYTE c);
-bool DosAlphaNum(BYTE c);
-BYTE MyWrite(HANDLE h, void *buf, DWORD len = 0);
-BYTE MyRead(HANDLE h, void *buf, DWORD len);
-void MyDebug(char *fmt, char *txt = NULL, __int64 p1 = -999,
-			 __int64 p2 = -999, __int64 p3 = -999, __int64 p4 = -999);
 
 //--------- Работа с базами данных формата DBF ---------------
 union dbVal {

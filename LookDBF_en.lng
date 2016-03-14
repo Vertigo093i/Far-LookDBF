@@ -17,7 +17,7 @@
 "Cannot find Memo-block in Memo-file!"
 "Bad replace for field types D and T."
 "Cannot write template file!"
-//----------------------- Š­®¯ª¨
+//----------------------- Buttons
 "Ok"
 "Search"
 "Save"
@@ -27,7 +27,7 @@
 "Help"
 "Info"
 "Edit"
-" Sum"
+"Sum"
 "Search"
 "Export"
 "Exit"

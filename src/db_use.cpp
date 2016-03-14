@@ -15,21 +15,6 @@ void *operator new[](size_t size) {return ::operator new(size); }
 void *operator new(size_t size, void *p) { return p; }
 void operator delete[](void *ptr) {::operator delete(ptr); }
 
-BYTE Upper(BYTE c)
-{
-	if (c < 97)return c;
-	if (c < 123)return c - 32;
-	if (c < 224)return c;
-	return c - 32;
-}
-
-char *Upper(char *text)
-{
-	BYTE *a = (BYTE *) text;
-	while (*a) { *a = Upper(*a); a++; }
-	return text;
-}
-
 //--------- Двухсвязный список объектов ---------------
 
 Link *Link::Head(void)
@@ -395,7 +380,7 @@ char *DTf2s(const char *f, char *s) {
 	for (i = j = 0; f[i];) {
 		if (f[i] != 0x01) { s[j++] = f[i++]; continue; }
 		++i; l = f[i] & 0x0f; k = f[i] >> 4; ++i;
-		CopyMemory(s + j, DTcode[k], l);
+		lstrcpyn(s + j, DTcode[k], l);
 		j += l;
 	}
 	s[j] = 0;
@@ -506,58 +491,6 @@ char *DTstr(char *s, char *d, char *f)
 	}
 	s[j] = 0;
 	return s;
-}
-
-//================== Прочее ==================
-
-bool NotNum(char c)
-{
-	if (c<'0' || c>'9') return true;
-	return false;
-}
-
-bool LatAlphaNum(BYTE c)
-{
-	if (c < 0x30) return false;
-	if (c < 0x3a) return true;
-	if (c < 0x41) return false;
-	if (c < 0x5b) return true;
-	if (c < 0x61) return false;
-	if (c < 0x7b) return true;
-	return false;
-}
-
-bool WinAlphaNum(BYTE c)
-{
-	if (c < 0x7b) return LatAlphaNum(c);
-	if (c < 0xc0) return false;
-	return true;
-}
-
-bool DosAlphaNum(BYTE c)
-{
-	if (c < 0x7b) return LatAlphaNum(c);
-	if (c < 0x80) return false;
-	if (c < 0xb0) return true;
-	if (c < 0xe0) return false;
-	if (c < 0xf8) return true;
-	return false;
-}
-
-BYTE MyWrite(HANDLE h, void *buf, DWORD len)
-{
-	DWORD nbr;
-	if (!len)len = lstrlen((TCHAR *) buf);
-	if (!WriteFile(h, (BYTE*) buf, len, &nbr, NULL) || nbr < len) return 1;
-	return 0;
-}
-
-BYTE MyRead(HANDLE h, void *buf, DWORD len)
-{
-	DWORD nbr;
-	BYTE *b = (BYTE*) buf;
-	if (!ReadFile(h, b, len, &nbr, NULL) || nbr < len) return 1;
-	return 0;
 }
 
 //--------- Работа с базами данных формата DBF ---------------
@@ -1072,8 +1005,7 @@ BYTE dbBase::FiNotFull(void)
 
 WORD dbBase::FiDisp(char *s, BYTE nll)
 {
-	WORD n;
-	BYTE *c, fle;
+	BYTE *c, fle, n;
 	if (!cf)return 0;
 	if (nll && FiNull()) { lstrcpy(s, "Null"); return 4; }
 	c = rec + cf->loc;
@@ -1157,8 +1089,7 @@ WORD dbBase::FiDisp(char *s, BYTE nll)
 	}
 			 s[n] = 0;
 	}
-	n = lstrlen(s);
-	return n;
+	return lstrlen(s);
 }
 //-----------------------------------
 
@@ -1411,8 +1342,8 @@ BYTE dbBase::IsEmpty(void)
 
 void dbBase::SetField(char *s)
 {
-	WORD n, i;
-	BYTE *c;
+	WORD i;
+	BYTE *c, n;
 	SYSTEMTIME t;
 	if (!cf)return;
 	SetNotNull();
@@ -1493,24 +1424,3 @@ NON_ZERO:
 	return;
 }
 //-----------------------------------
-/*
-
-void MyDebug(char *fmt,char *txt,__int64 p1,__int64 p2,__int64 p3,__int64 p4)
-{
-HANDLE f;
-char buff[512];
-f=CreateFile("dbg_dbg.dbg",GENERIC_WRITE,FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,
-			 FILE_ATTRIBUTE_NORMAL|FILE_FLAG_RANDOM_ACCESS,NULL);
-if(f==INVALID_HANDLE_VALUE) return;
-SetFilePointer(f,0,NULL,FILE_END);
-if(!txt)lstrcpy(buff,fmt);
-else if(p1==-999)FSF.sprintf(buff,fmt,txt);
-else if(p2==-999)FSF.sprintf(buff,fmt,txt,p1);
-else if(p3==-999)FSF.sprintf(buff,fmt,txt,p1,p2);
-else if(p4==-999)FSF.sprintf(buff,fmt,txt,p1,p2,p3);
-else FSF.sprintf(buff,fmt,txt,p1,p2,p3,p4);
-MyWrite(f,buff);
-CloseHandle(f);
-}
-//------------------------------*/
-
