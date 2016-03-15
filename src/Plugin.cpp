@@ -76,7 +76,7 @@ int WINAPI _export Configure(int ItemNumber)
 	ZeroMemory(di, sizeof(di));
 	ZeroMemory(fli, sizeof(fli));
 	flc.Items = fli; flc.ItemsNumber = 2;
-	lstrcpy(fli[0].Text, "Win"); lstrcpy(fli[1].Text, "Dos");
+	lstrcpy(fli[0].Text, "DOS"); lstrcpy(fli[1].Text, "Win");
 	if (ItemNumber >= 0) {
 		LookHeap = HeapCreate(HEAP_NO_SERIALIZE, 0x20000, 0);
 		if (!LookHeap)return false;
@@ -90,7 +90,7 @@ int WINAPI _export Configure(int ItemNumber)
 		Info.CharTable(i - 1, (char*) (&cts), sizeof(CharTableSet));
 		lstrcpy(flt.Items[i].Text, cts.TableName);
 	}
-	fli[0].Flags = LIF_SELECTED; //  Кодировка по умолчанию (Win)
+	fli[1].Flags = LIF_SELECTED; //  Кодировка по умолчанию (Win)
 	di[3].Selected = 0;          //  Показывать номера записей (нет)
 	di[4].Selected = 0;          //  Показывать мемо на весь экран (нет)
 	di[5].Data[0] = 0xb3;        //  Разделитель эксопрта
@@ -110,7 +110,7 @@ int WINAPI _export Configure(int ItemNumber)
 		sz = sizeof(val);   //---------  Кодировка по умолчанию (Win)
 		rz = RegQueryValueEx(hKey, "CodeDefault", NULL, NULL, (BYTE*) (&val), &sz);
 		if (rz == ERROR_SUCCESS) {
-			if (val)fli[0].Flags = LIF_SELECTED; else fli[1].Flags = LIF_SELECTED;
+			if (!val) { fli[0].Flags = LIF_SELECTED; fli[1].Flags = 0; }
 		}
 		sz = sizeof(val);  //---------  Показывать номера записей (нет)
 		rz = RegQueryValueEx(hKey, "ShowRecNum", NULL, NULL, (BYTE*) (&val), &sz);
@@ -265,7 +265,7 @@ int WINAPI _export Configure(int ItemNumber)
 	++i; //34
 	i = Info.Dialog(Info.ModuleNumber, -1, -1, 54, 24, "Config", di, i);
 	if (i == 32) {
-		val = 1 - di[1].ListPos; sz = 4;
+		val = di[1].ListPos; sz = 4;
 		RegSetValueEx(hKey, "CodeDefault", 0, REG_DWORD, (BYTE*) (&val), sz);
 		val = di[3].Selected; sz = 4;    //-----> Показывать номера записей
 		RegSetValueEx(hKey, "ShowRecNum", 0, REG_DWORD, (BYTE*) (&val), sz);

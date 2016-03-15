@@ -415,7 +415,7 @@ $ #Code Tables#
 
    LookDBF can work simultaneously with 2 code tables only.
 
-   One of these is OEM (Dos) table always (CP-866 fo russian).
+   One of these is OEM (DOS) table always (CP-866 fo russian).
    The second was current Windows code table (CP-1251 fo russian).
 Unfortunantely, standard transforming functions (CharToOem,OemToChar)
 not all characters (for example, ukrainian letters Ii) transforms correctly.

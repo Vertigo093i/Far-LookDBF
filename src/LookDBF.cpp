@@ -205,8 +205,8 @@ void LOOK::ShowStatus(int index)
 	if (index < 1) { //<------- Initialization
 		AttrRect(0, 0, sw, 1, at[9]);  ShowStr(FileName, 1, 0);
 		sXcode = lstrlen(FileName) + 2;
-		if (Yes(WinCode)) { ShowStr(aw + 1, sXcode, 0, 10); ShowStr(" Dos", 58, sh, 0, 6); }
-		else { ShowStr("Dos", sXcode, 0, 10); ShowStr(aw, 58, sh, 0, 6); }
+		if (Yes(WinCode)) { ShowStr(aw + 1, sXcode, 0, 10); ShowStr(" DOS", 58, sh, 0, 6); }
+		else { ShowStr("DOS", sXcode, 0, 10); ShowStr(aw, 58, sh, 0, 6); }
 		FSF.sprintf(s, "1/%lu", db.dbH.nrec); Wrec = lstrlen(s) - 1;
 		sXrec = sw - Wrec * 2 - 1;  ShowStr(s, sXrec + Wrec - 1, 0, 13);
 		FSF.sprintf(s, "1/%u", db.nfil); Wcol = lstrlen(s) - 2;
@@ -1088,7 +1088,7 @@ WORD LOOK::Export(void)
 	flc.Items = flt.Items + 3;
 	flc.ItemsNumber = 3; flc.Items[Exp.CoType].Flags = LIF_SELECTED;
 	lstrcpy(flc.Items[0].Text, GetMsg(mExOriginal));
-	lstrcpy(flc.Items[1].Text, "<<Dos>>");
+	lstrcpy(flc.Items[1].Text, "<<DOS>>");
 	lstrcpy(flc.Items[2].Text, "<<");
 	lstrcat(flc.Items[2].Text, aw + 1);
 	lstrcat(flc.Items[2].Text, ">>");
@@ -2810,18 +2810,18 @@ void LOOK::KeyShow(void)
 	ShowStr(GetMsg(mBarF7), 50, sh, 0, 6);
 	ShowStr(GetMsg(mBarF9), 66, sh, 0, 6);
 	ShowStr(GetMsg(mBarF10), 74, sh, 0, 6);
-	ShowStr(Yes(WinCode) ? " Dos" : aw + 1, 58, sh, 0, 6);
+	ShowStr(Yes(WinCode) ? "DOS" : aw + 1, 58, sh, 0, 6);
 }
 //===========================================================================
 
 void LOOK::ChangeCode(void)
 {
 	if (Yes(WinCode)) {
-		Clear(WinCode); ShowStr("Dos", sXcode, 0, 10); ShowStr(aw, 58, sh, 0, 6);
+		Clear(WinCode); ShowStr("DOS", sXcode, 0, 10); ShowStr(aw + 1, 58, sh, 0, 6);
 		if (Find.FD[0]) ToOem(Find.FU);
 	}
 	else {
-		Set(WinCode); ShowStr(aw + 1, sXcode, 0, 10); ShowStr(" Dos", 58, sh, 0, 6);
+		Set(WinCode); ShowStr(aw + 1, sXcode, 0, 10); ShowStr("DOS", 58, sh, 0, 6);
 		if (Find.FD[0]) ToAlt(Find.FU);
 	}
 	ShowPage();
