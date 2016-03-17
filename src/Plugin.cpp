@@ -17,7 +17,7 @@ extern const char *DefMemExt;
 Функция GetMsg возвращает строку сообщения из языкового файла.
 А это надстройка над Info.GetMsg для сокращения кода :-)
 */
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
 	return Info.GetMsg(Info.ModuleNumber, MsgId);
 }
@@ -25,7 +25,7 @@ const char *GetMsg(int MsgId)
 
 int WINAPI _export GetMinFarVersion(void)
 {
-	return MAKEFARVERSION(1, 75, 2634); //FARMANAGERVERSION
+	return FARMANAGERVERSION;
 }
 
 /*

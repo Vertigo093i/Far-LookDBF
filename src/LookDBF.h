@@ -58,7 +58,7 @@ enum {
 //===========================================================================
 
 
-const char *GetMsg(int MsgId);
+const TCHAR *GetMsg(int MsgId);
 //===========================================================================
 
 typedef char Str256[256];
@@ -285,8 +285,8 @@ struct LOOK {
 	void Clipboard(void);
 	void ClearCur(void);
 
-	int AskMsg(char *s);
-	int OkMsg(char *s);
+	int AskMsg(const TCHAR *const *s, int n);
+	void OkMsg(const TCHAR *const *s, int n);
 	void ShowCur(void);
 	void ShowError(int index);
 	void ShowExpMsg(DWORD msec);

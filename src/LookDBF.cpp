@@ -16,10 +16,10 @@ static char T_Mask[DTFmtL] = "99/99/9999-99:99:99";
 static char D_Mask[DTFmtL] = "99/99/9999";
 const char *DefD = "dd/mm/yyyy";
 const char *DefT = "dd/mm/yyyy-hh:mi:se";
-char const *DefMemExt = "DBC:DCT,FRX:FRT,SCX:SCT,MNX:MNT,VCX:VCT,PJX:PJT";
-static char *C_OPER[7] = { " N/A"," AND"," OR"," XOR"," NXO",
+const char *DefMemExt = "DBC:DCT,FRX:FRT,SCX:SCT,MNX:MNT,VCX:VCT,PJX:PJT";
+static const char *C_OPER[7] = { " N/A"," AND"," OR"," XOR"," NXO",
 						"0 \x1A 99","99 \x1A 0" };
-static char *C_REL[6] = { "  ="," <>","  >"," >=","  <"," <=" };
+static const char *C_REL[6] = { "  ="," <>","  >"," >=","  <"," <=" };
 //================== Прочее ==================
 
 static BYTE MyWrite(HANDLE h, LPVOID buf, DWORD len = 0)
@@ -36,7 +36,6 @@ static BYTE MyRead(HANDLE h, LPVOID buf, DWORD len)
 	if (!ReadFile(h, buf, len, &nbr, NULL) || nbr < len) return 1;
 	return 0;
 }
-
 //===========================================================================
 
 static BOOL CheckForEsc(void)
@@ -132,37 +131,41 @@ void LOOK::ToAlt(TCHAR *src, TCHAR *dst)
 	*dst = 0;
 }
 //===========================================================================
+
 void LOOK::ShowError(int index)
 {
-	char Msg[256];
 	if (!index) return;
+	const TCHAR *Msg[6];
+	BYTE ndx = 0;
 	if (index < 4) {
-		lstrcpy(Msg, Title); lstrcat(Msg, "\n\n");
-		lstrcat(Msg, FileName); lstrcat(Msg, "\n\n");
+		Msg[ndx++] = Title;
+		Msg[ndx++] = FileName;
 	}
 	else {
-		lstrcpy(Msg, GetMsg(mError)); lstrcat(Msg, "\n\n");
-		if (index > 40) { lstrcat(Msg, GetMsg(mTempFile)); lstrcat(Msg, "\n\n"); index %= 20; }
-		if (index > 20) { lstrcat(Msg, Exp.File); lstrcat(Msg, "\n\n"); index %= 20; }
+		Msg[ndx++] = GetMsg(mError);
+		if (index > 40) { Msg[ndx++] = GetMsg(mTempFile); index %= 20; }
+		if (index > 20) { Msg[ndx++] = Exp.File; index %= 20; }
 	}
+	Msg[ndx++] = TEXT("");
+	const TCHAR *MsgDetail;
 	switch (index) {
-	case 1: lstrcat(Msg, GetMsg(mNoOpen)); break;
-	case 2: lstrcat(Msg, GetMsg(mBadFile)); break;
-	case 3: lstrcat(Msg, GetMsg(mBadWrite)); break;
-	case 4: lstrcat(Msg, GetMsg(mNoMemory)); break;
-	case 5: lstrcat(Msg, GetMsg(mNoSelect)); break;
-	case 6: lstrcat(Msg, GetMsg(mNoNumeric)); break;
-	case 7: lstrcat(Msg, GetMsg(mErExport)); break;
-	case 8: lstrcat(Msg, GetMsg(mLookOnly)); break;
-	case 9: lstrcat(Msg, GetMsg(mNoMemFile)); break;
-	case 10: lstrcat(Msg, GetMsg(mNoMemBlock)); break;
-	case 11: lstrcat(Msg, GetMsg(mBadRepl)); break;
-	case 12: lstrcat(Msg, GetMsg(mNoTemplate)); break;
-	default: lstrcat(Msg, "*<*>*!*<*>*");
+	case 1: MsgDetail = GetMsg(mNoOpen); break;
+	case 2: MsgDetail = GetMsg(mBadFile); break;
+	case 3: MsgDetail = GetMsg(mBadWrite); break;
+	case 4: MsgDetail = GetMsg(mNoMemory); break;
+	case 5: MsgDetail = GetMsg(mNoSelect); break;
+	case 6: MsgDetail = GetMsg(mNoNumeric); break;
+	case 7: MsgDetail = GetMsg(mErExport); break;
+	case 8: MsgDetail = GetMsg(mLookOnly); break;
+	case 9: MsgDetail = GetMsg(mNoMemFile); break;
+	case 10: MsgDetail = GetMsg(mNoMemBlock); break;
+	case 11: MsgDetail = GetMsg(mBadRepl); break;
+	case 12: MsgDetail = GetMsg(mNoTemplate); break;
+	default: MsgDetail = TEXT("*<*>*!*<*>*");
 	}
-	lstrcat(Msg, "\n\n\x01\n"); lstrcat(Msg, GetMsg(mButOK));
-	Info.Message(Info.ModuleNumber, FMSG_WARNING | FMSG_ALLINONE, "Functions",
-				 (const char **) Msg, 7, 1);
+	Msg[ndx++] = MsgDetail;
+	Msg[ndx++] = TEXT("\x01");
+	Info.Message(Info.ModuleNumber, FMSG_WARNING | FMSG_MB_OK, TEXT("Functions"), Msg, ndx, 0);
 }
 //===========================================================================
 
@@ -269,18 +272,22 @@ void LOOK::ShowStatus(int index)
 
 void LOOK::ShowExpMsg(DWORD msec)
 {
-	char Msg[256];
-	lstrcpy(Msg, GetMsg(mExTitle)); lstrcat(Msg, "\n\n");
-	lstrcat(Msg, Exp.File); switch (Exp.Form) {
-	case 0: lstrcat(Msg, ".TXT"); break;
-	case 1: lstrcat(Msg, ".HTM"); break;
-	case 2: lstrcat(Msg, ".DBF"); break;
+	TCHAR Buffer1[MAX_PATH + 4 + 1];
+	TCHAR Buffer2[256];
+	const TCHAR *Msg[] = {
+		GetMsg(mExTitle),
+		Buffer1,
+		TEXT(""),
+		Buffer2,
+		TEXT("\x01")
+	};
+	lstrcpyn(Buffer1, Exp.File, MAX_PATH); switch (Exp.Form) {
+	case 0: lstrcat(Buffer1, ".txt"); break;
+	case 1: lstrcat(Buffer1, ".htm"); break;
+	case 2: lstrcat(Buffer1, ".dbf"); break;
 	}
-	lstrcat(Msg, "\n\n");
-	FSF.sprintf(Msg + lstrlen(Msg), GetMsg(mExGood), Exp.count, msec);
-	lstrcat(Msg, "\n\x01\n"); lstrcat(Msg, GetMsg(mButOK));
-	Info.Message(Info.ModuleNumber, FMSG_ALLINONE, "Export",
-				 (const char **) Msg, 7, 1);
+	FSF.snprintf(Buffer2, 255, GetMsg(mExGood), Exp.count, msec);
+	Info.Message(Info.ModuleNumber, FMSG_MB_OK, TEXT("Export"), Msg, ARRAYSIZE(Msg), 0);
 }
 //===========================================================================
 
@@ -1705,24 +1712,28 @@ char *LOOK::NameScratch(char *nm)
 }
 //===========================================================================
 
-int LOOK::AskMsg(char *s)
+int LOOK::AskMsg(const TCHAR *const *s, int n)
 {
-	char Msg[256];
-	lstrcpy(Msg, s);
-	lstrcat(Msg, "\n\x01\n"); lstrcat(Msg, GetMsg(mButOK));
-	lstrcat(Msg, "\n"); lstrcat(Msg, GetMsg(mButCancel));
-	return Info.Message(Info.ModuleNumber, FMSG_ALLINONE, "Functions",
-						(const char **) Msg, 0, 2);
+	if (n < 1) return -1;
+	TCHAR **Msg = new TCHAR*[n + 1];
+	for (int ndx = 0; ndx < n; ndx++)
+		Msg[ndx] = (TCHAR *) s[ndx];
+	Msg[n] = TEXT("\x01");
+	int result = Info.Message(Info.ModuleNumber, FMSG_MB_OKCANCEL, TEXT("Functions"), Msg, n + 1, 0);
+	delete Msg;
+	return result;
 }
 //===========================================================================
 
-int LOOK::OkMsg(char *s)
+void LOOK::OkMsg(const TCHAR *const *s, int n)
 {
-	char Msg[256];
-	lstrcpy(Msg, s);
-	lstrcat(Msg, "\n\x01\n"); lstrcat(Msg, GetMsg(mButOK));
-	return Info.Message(Info.ModuleNumber, FMSG_ALLINONE, "Functions",
-						(const char **) Msg, 0, 1);
+	if (n < 1) return;
+	TCHAR **Msg = new TCHAR*[n + 1];
+	for (int ndx = 0; ndx < n; ndx++)
+		Msg[ndx] = (TCHAR *) s[ndx];
+	Msg[n] = TEXT("\x01");
+	Info.Message(Info.ModuleNumber, FMSG_MB_OK, TEXT("Functions"), Msg, n + 1, 0);
+	delete Msg;
 }
 //===========================================================================
 
@@ -1732,9 +1743,10 @@ WORD LOOK::PackDbf(void)
 	DWORD step;
 	dbField *c;
 	dbBase a;
-	lstrcpy(scratch, "\n");
-	lstrcat(scratch, GetMsg(mPkTitle));
-	if (AskMsg(scratch)) return 1;
+	{
+		const char *Msg[] = { GetMsg(mPkTitle), "?" };
+		if (AskMsg(Msg, ARRAYSIZE(Msg))) return 1;
+	}
 	for (c = db.dbF; c; c = (dbField *) c->Next())a.AddF(c);
 	if (a.Create(NameScratch(scratch), db.dbH.type, &db)) { ShowError(1); return 1; }
 	if (db.Read(1)) { ShowError(2); a.Close(); return 1; }
@@ -1754,10 +1766,10 @@ FINISH:
 	MarkFree();
 	db.Open(FileName, LookOnly);
 	db.fmtD = fmtD; db.fmtT = fmtT;
-	lstrcpy(scratch, GetMsg(mPkTitle));
-	lstrcat(scratch, "\n");
-	lstrcat(scratch, GetMsg(mPkGood));
-	OkMsg(scratch);
+	{
+		const char *Msg[] = { GetMsg(mPkTitle), GetMsg(mPkGood) };
+		OkMsg(Msg, ARRAYSIZE(Msg));
+	}
 	if (!db.dbH.nrec) {
 		if (ShowFields() > -2) return 2;
 		if (db.Append()) { ShowError(2); return 2; }
@@ -1782,13 +1794,14 @@ WORD LOOK::Import(void)
 	dbBase a;
 	i = a.Open(ImpFile, 1);
 	if (i & 0x000f) {
-		char Msg[512];
-		lstrcpy(Msg, Title); lstrcat(Msg, "\n\n");
-		lstrcat(Msg, ImpFile); lstrcat(Msg, "\n\n");
-		lstrcat(Msg, GetMsg(mNoOpen));
-		lstrcat(Msg, "\n\n\x01\n"); lstrcat(Msg, GetMsg(mButOK));
-		Info.Message(Info.ModuleNumber, FMSG_WARNING | FMSG_ALLINONE, "Import",
-					 (const char **) Msg, 0, 1);
+		const TCHAR *Msg[] = {
+			Title,
+			ImpFile,
+			TEXT(""),
+			GetMsg(mNoOpen),
+			TEXT("\x01")
+		};
+		Info.Message(Info.ModuleNumber, FMSG_WARNING | FMSG_MB_OK, TEXT("Import"), Msg, ARRAYSIZE(Msg), 0);
 		a.Close(); return 1;
 	}
 	if (!a.dbH.nrec) { a.Close(); return 1; }
@@ -2524,33 +2537,48 @@ short LOOK::FindAskSample(void)
 
 void LOOK::ShowFindMsg(DWORD nr)
 {
-	char *s, Msg[256];
-	lstrcpy(Msg, GetMsg(mFindTitle));
+	TCHAR *s, *Msg[6];
+	Msg[0] = (TCHAR *) GetMsg(mFindTitle);
+	BYTE ndx = 1;
 	if (Yes(CondSearch)) {
 		Column *c = FindFin(Cond.Field[0]);
-		s = Msg + lstrlen(Msg);
-		FSF.sprintf(s, "\n\n%s%s %s\n", c->name, C_REL[Cond.Rel[0]], Cond.Str[0]);
+		s = Msg[ndx++] = new TCHAR[lstrlen(c->name) + lstrlen(C_REL[Cond.Rel[0]]) + sizeof(TCHAR) + lstrlen(Cond.Str[0]) + 1];
+		lstrcpy(s, c->name); lstrcat(s, C_REL[Cond.Rel[0]]); lstrcat(s, TEXT(" ")); lstrcat(s, Cond.Str[0]);
 		if (Cond.Oper) {
-			c = FindFin(Cond.Field[1]); s = Msg + lstrlen(Msg);
-			FSF.sprintf(s, "%s\n%s%s %s\n", C_OPER[Cond.Oper], c->name,
-						C_REL[Cond.Rel[1]], Cond.Str[1]);
+			Msg[ndx++] = (TCHAR *) C_OPER[Cond.Oper];
+			c = FindFin(Cond.Field[1]);
+			s = Msg[ndx++] = new TCHAR[lstrlen(c->name) + lstrlen(C_REL[Cond.Rel[1]]) + sizeof(TCHAR) + lstrlen(Cond.Str[1]) + 1];
+			lstrcpy(s, c->name); lstrcat(s, C_REL[Cond.Rel[1]]); lstrcat(s, TEXT(" ")); lstrcat(s, Cond.Str[1]);
 		}
 	}
-	else { lstrcat(Msg, "\n\n<<"); lstrcat(Msg, Find.FD); lstrcat(Msg, ">>\n"); }
-	if (nr) { FSF.sprintf(Msg + lstrlen(Msg), "%s %lu", GetMsg(mFindYes), nr); }
-	else lstrcat(Msg, GetMsg(mFindNo));
-	lstrcat(Msg, ".\n\n\x01\n"); lstrcat(Msg, GetMsg(mButOK));
-	Info.Message(Info.ModuleNumber, FMSG_ALLINONE, "Status", (const char **) Msg, 7, 1);
+	else {
+		s = Msg[ndx++] = new TCHAR[(sizeof(TCHAR) << 1) + lstrlen(Find.FD) + (sizeof(TCHAR) << 1) + 1];
+		lstrcpy(s, TEXT("<<")); lstrcat(s, Find.FD); lstrcat(s, TEXT(">>"));
+	}
+	s = Msg[ndx++] = new TCHAR[256];
+	if (nr) FSF.snprintf(s, 255, TEXT("%s %lu"), GetMsg(mFindYes), nr);
+	else lstrcpyn(s, GetMsg(mFindNo), 255);
+	lstrcat(s, TEXT("."));
+	Msg[ndx++] = TEXT("\x01");
+	Info.Message(Info.ModuleNumber, FMSG_MB_OK, TEXT("Status"), Msg, ndx, 0);
+	delete Msg[----ndx];
+	delete Msg[--ndx];
+	if (Yes(CondSearch) && Cond.Oper) {
+		delete Msg[----ndx];
+	}
 }
 //===========================================================================
 
 void LOOK::ShowReplMsg(DWORD nr)
 {
-	char Msg[256];
-	lstrcpy(Msg, GetMsg(mReplTitle));
-	FSF.sprintf(Msg + lstrlen(Msg), "\n\n%lu %s", nr, GetMsg(mReplYes));
-	lstrcat(Msg, "\n\n\x01\n"); lstrcat(Msg, GetMsg(mButOK));
-	Info.Message(Info.ModuleNumber, FMSG_ALLINONE, "Status", (const char **) Msg, 0, 1);
+	TCHAR Buffer[256];
+	const TCHAR *Msg[] = {
+		GetMsg(mReplTitle),
+		Buffer,
+		TEXT("\x01")
+	};
+	FSF.snprintf(Buffer, 255, TEXT("%lu %s"), nr, GetMsg(mReplYes));
+	Info.Message(Info.ModuleNumber, FMSG_MB_OK, TEXT("Status"), Msg, ARRAYSIZE(Msg), 0);
 }
 //===========================================================================
 
@@ -3886,9 +3914,8 @@ void LOOK::PutTemplate(bool msg)
 	if (MyWrite(ef, &rh, sizeof(RecHead))) goto BAD_WRITE;
 	CloseHandle(ef);
 	if (!msg)return;
-	lstrcpy(TemName, "LookDBF\n\n"); lstrcat(TemName, GetMsg(mTemplate));
-	lstrcat(TemName, "\n\n\x01\n"); lstrcat(TemName, GetMsg(mButOK));
-	Info.Message(Info.ModuleNumber, FMSG_ALLINONE, "Config", (const char **) TemName, 0, 1);
+	const TCHAR *MsgItems[] = { Title, GetMsg(mTemplate), TEXT("\x01") };
+	Info.Message(Info.ModuleNumber, FMSG_MB_OK, TEXT("Config"), MsgItems, ARRAYSIZE(MsgItems), 0);
 	return;
 BAD_WRITE:
 	CloseHandle(ef);
