@@ -11,6 +11,7 @@ LOOK *data;
 extern const char *DefD;
 extern const char *DefT;
 extern const char *DefMemExt;
+extern char DefExpSep;
 //===========================================================================
 
 /*
@@ -93,7 +94,7 @@ int WINAPI _export Configure(int ItemNumber)
 	fli[1].Flags = LIF_SELECTED; //  Кодировка по умолчанию (Win)
 	di[3].Selected = 0;          //  Показывать номера записей (нет)
 	di[4].Selected = 0;          //  Показывать мемо на весь экран (нет)
-	di[5].Data[0] = 0xb3;        //  Разделитель эксопрта
+	di[5].Data[0] = DefExpSep;   //  Разделитель эксопрта
 	di[7].Selected = 0;          //  Автоматически сохранять шаблон (нет)
 	lstrcpy(di[8].Data, "?");   // маскирующий символ
 	lstrcpy(di[14].Data, DefD); // Показ даты
@@ -120,7 +121,7 @@ int WINAPI _export Configure(int ItemNumber)
 		if (rz == ERROR_SUCCESS)di[4].Selected = val;
 		sz = 3;            //----------- Разделитель экспорта
 		rz = RegQueryValueEx(hKey, "ExpSep", NULL, NULL, (BYTE*) di[5].Data, &sz);
-		if (rz != ERROR_SUCCESS) { di[5].Data[0] = 0xb3; di[5].Data[1] = 0; }
+		if (rz != ERROR_SUCCESS) { di[5].Data[0] = DefExpSep; di[5].Data[1] = 0; }
 		sz = sizeof(val);  //-----------  Автоматически сохранять шаблон (нет)
 		rz = RegQueryValueEx(hKey, "AutoSave", NULL, NULL, (BYTE*) (&val), &sz);
 		if (rz == ERROR_SUCCESS)di[7].Selected = val;
@@ -273,7 +274,7 @@ int WINAPI _export Configure(int ItemNumber)
 		RegSetValueEx(hKey, "ShowMemoFull", 0, REG_DWORD, (BYTE*) (&val), sz);
 		sz = lstrlen(di[5].Data) + 1;    //-----> Разделитель экспорта
 		if (sz < 2 || ((di[5].Data[0] == 'B' || di[5].Data[0] == 'b') && di[5].Data[1] == '3')) {
-			di[5].Data[0] = 0xb3; di[5].Data[1] = 0; sz = 2;
+			di[5].Data[0] = DefExpSep; di[5].Data[1] = 0; sz = 2;
 		}
 		if (sz > 3) { di[5].Data[2] = 0; sz = 3; }
 		if (sz)RegSetValueEx(hKey, "ExpSep", 0, REG_SZ, (BYTE*) di[5].Data, sz);

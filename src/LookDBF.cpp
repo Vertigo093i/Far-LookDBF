@@ -17,6 +17,7 @@ static char D_Mask[DTFmtL] = "99/99/9999";
 const char *DefD = "dd/mm/yyyy";
 const char *DefT = "dd/mm/yyyy-hh:mi:se";
 const char *DefMemExt = "DBC:DCT,FRX:FRT,SCX:SCT,MNX:MNT,VCX:VCT,PJX:PJT";
+char DefExpSep = '\xb3';
 static const char *C_OPER[7] = { " N/A"," AND"," OR"," XOR"," NXO",
 						"0 \x1A 99","99 \x1A 0" };
 static const char *C_REL[6] = { "  ="," <>","  >"," >=","  <"," <=" };
@@ -891,29 +892,24 @@ void LOOK::ClearRect(WORD left, WORD top, WORD width, WORD height)
 
 void LOOK::ShowStr(const char *str, WORD x, WORD y, BYTE atn, WORD L)
 {
-	int i, l;
-	CHAR_INFO *v = VBuf + sw*y + x;
-	l = lstrlen(str); if (!L)L = l; if (L + x > sw)L = sw - x;
-	if (atn) {
-		for (i = 0; i < L; i++) {
-			if (i < l)v[i].Char.AsciiChar = str[i];
-			else v[i].Char.AsciiChar = ' ';
-			v[i].Attributes = at[atn];
-		}
-		return;
+	if (x >= sw) return;
+	int l = lstrlen(str); if (!L) L = l; if (L + x > sw) L = sw - x;
+	CHAR_INFO *v = VBuf + sw * y + x;
+	for (int i = 0; i < L; i++) {
+		v[i].Char.AsciiChar = i < l ? str[i] : ' ';
+		if (atn) v[i].Attributes = at[atn];
 	}
-	for (i = 0; i < L; i++) if (i < l)v[i].Char.AsciiChar = str[i]; else v[i].Char.AsciiChar = ' ';
 }
 //===========================================================================
 
 void LOOK::ShowStrI(const char *str, WORD x, WORD y, WORD L)
 {
-	int i, l;
+	if (x >= sw) return;
 	bool sep = true;
-	CHAR_INFO *v = VBuf + sw*y + x;
-	l = lstrlen(str); if (L + x > sw) { L = sw - x; sep = false; }
-	for (i = 0; i < L; i++) v[i].Char.AsciiChar = (i < l) ? str[i] : ' ';
-	if (sep)v[L - 1].Char.AsciiChar = 0xb3;
+	int l = lstrlen(str); if (L + x > sw) { L = sw - x; sep = false; }
+	CHAR_INFO *v = VBuf + sw * y + x;
+	for (int i = 0; i < L; i++) v[i].Char.AsciiChar = i < l ? str[i] : ' ';
+	if (sep) v[L - 1].Char.AsciiChar = DefExpSep;
 }
 //===========================================================================
 
@@ -926,23 +922,21 @@ void LOOK::ShowChar(char c, WORD x, WORD y, BYTE atn)
 
 void LOOK::AttrRect(WORD left, WORD top, WORD width, WORD height, WORD Attr)
 {
-	int x, y;
-	CHAR_INFO *v;
+	if (left >= sw) return;
 	if (left + width > sw)width = sw - left;
-	for (y = 0; y < height; y++) {
-		v = VBuf + (sw) *(top + y) + left;
-		for (x = 0; x < width; x++)v[x].Attributes = Attr;
+	for (int y = 0; y < height; y++) {
+		CHAR_INFO *v = VBuf + sw * (top + y) + left;
+		for (int x = 0; x < width; x++) v[x].Attributes = Attr;
 	}
 }
 //===========================================================================
 
 void LOOK::AttrLine(WORD left, WORD width, WORD Y, WORD Attr)
 {
-	int x;
-	CHAR_INFO *v;
+	if (left >= sw) return;
 	if (left + width > sw)width = sw - left;
-	v = VBuf + (sw) *Y + left;
-	for (x = 0; x < width; x++)v[x].Attributes = Attr;
+	CHAR_INFO *v = VBuf + sw * Y + left;
+	for (int x = 0; x < width; x++) v[x].Attributes = Attr;
 }
 //===========================================================================
 
@@ -1049,16 +1043,16 @@ static LONG_PTR WINAPI DiExp(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 				di[12].Data[0] = data->Exp.Type[0];
 				di[12].Data[1] = data->Exp.Type[1];
 			}
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 8, (long) (di + 8));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 10, (long) (di + 10));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 11, (long) (di + 11));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 12, (long) (di + 12));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 8, (LONG_PTR) (di + 8));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 10, (LONG_PTR) (di + 10));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 11, (LONG_PTR) (di + 11));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 12, (LONG_PTR) (di + 12));
 			Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
 			return 1;
 		case 19: case 22: case 25:
 			i = Param1 - 1;
 			data->FieldItemType(Param2 - 1, di[i].Data);
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, i, (long) (di + i));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, i, (LONG_PTR) (di + i));
 			Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
 			return 1;
 		}
@@ -1254,7 +1248,7 @@ WORD LOOK::Export(void)
 	lstrcpy(di[i].Data, GetMsg(mExpEmpty));
 	idEmp = i; ++i;
 	j = Info.DialogEx(Info.ModuleNumber, -1, -1, 61, 17,
-					  "Export", di, i, 0, 0, DiExp, (long) di);
+					  "Export", di, i, 0, 0, DiExp, (LONG_PTR) di);
 	if (!di[idFile].Data[0]) { delete flt.Items; delete di; return 1; }
 	if (j == idEmp) { Set(ExpEmpty); j = idOk; }
 	if (j != idOk) { delete flt.Items; delete di; return 1; }
@@ -1883,9 +1877,9 @@ static LONG_PTR WINAPI DiCond(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 	case DN_LISTCHANGE:
 		switch (Param1) {
 		case 1:
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 3, (long) (di + 3));
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 4, (long) (di + 4));
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 14, (long) (di + 14));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 3, (LONG_PTR) (di + 3));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 4, (LONG_PTR) (di + 4));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 14, (LONG_PTR) (di + 14));
 			data->FieldItemType(Param2, di[14].Data);
 			switch (data->db.cf->type) {
 			case 'T': di[4].Flags &= ~DIF_HIDDEN; di[4].Mask = T_Mask;
@@ -1896,15 +1890,15 @@ static LONG_PTR WINAPI DiCond(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 				break;
 			default:  di[3].Flags &= ~DIF_HIDDEN; di[4].Flags |= DIF_HIDDEN;
 			}
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 3, (long) (di + 3));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 4, (long) (di + 4));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 14, (long) (di + 14));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 3, (LONG_PTR) (di + 3));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 4, (LONG_PTR) (di + 4));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 14, (LONG_PTR) (di + 14));
 			Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
 			return 1;
 		case 6:
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 8, (long) (di + 8));
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 9, (long) (di + 9));
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 15, (long) (di + 15));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 8, (LONG_PTR) (di + 8));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 9, (LONG_PTR) (di + 9));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 15, (LONG_PTR) (di + 15));
 			data->FieldItemType(Param2, di[15].Data);
 			switch (data->db.cf->type) {
 			case 'T': di[9].Flags &= ~DIF_HIDDEN; di[9].Mask = T_Mask;
@@ -1915,16 +1909,16 @@ static LONG_PTR WINAPI DiCond(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 				break;
 			default:  di[8].Flags &= ~DIF_HIDDEN; di[9].Flags |= DIF_HIDDEN;
 			}
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 8, (long) (di + 8));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 9, (long) (di + 9));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 15, (long) (di + 15));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 8, (LONG_PTR) (di + 8));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 9, (LONG_PTR) (di + 9));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 15, (LONG_PTR) (di + 15));
 			Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
 			return 1;
 		case 5:
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 6, (long) (di + 6));
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 7, (long) (di + 7));
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 8, (long) (di + 8));
-			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 9, (long) (di + 9));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 6, (LONG_PTR) (di + 6));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 7, (LONG_PTR) (di + 7));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 8, (LONG_PTR) (di + 8));
+			Info.SendDlgMessage(hDlg, DM_GETDLGITEM, 9, (LONG_PTR) (di + 9));
 			if (Param2) {
 				di[6].Flags &= ~DIF_DISABLE; di[7].Flags &= ~DIF_DISABLE;
 				di[8].Flags &= ~DIF_DISABLE; di[9].Flags &= ~DIF_DISABLE;
@@ -1933,10 +1927,10 @@ static LONG_PTR WINAPI DiCond(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 				di[6].Flags |= DIF_DISABLE; di[7].Flags |= DIF_DISABLE;
 				di[8].Flags |= DIF_DISABLE; di[9].Flags |= DIF_DISABLE;
 			}
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 6, (long) (di + 6));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 7, (long) (di + 7));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 8, (long) (di + 8));
-			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 9, (long) (di + 9));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 6, (LONG_PTR) (di + 6));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 7, (LONG_PTR) (di + 7));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 8, (LONG_PTR) (di + 8));
+			Info.SendDlgMessage(hDlg, DM_SETDLGITEM, 9, (LONG_PTR) (di + 9));
 			Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
 			return 1;
 		}
@@ -2063,7 +2057,7 @@ short LOOK::CondAsk(void)
 	db.FiNum(Cond.Field[1]);
 	db.FiType(di[i].Data);
 
-	i = Info.DialogEx(Info.ModuleNumber, -1, -1, 57, 14, "Cond", di, 16, 0, 0, DiCond, (long) di);
+	i = Info.DialogEx(Info.ModuleNumber, -1, -1, 57, 14, "Cond", di, 16, 0, 0, DiCond, (LONG_PTR) di);
 	delete op.Items;
 	if (i < 11)return 0;
 	c = FieldItem(di[1].ListPos); Cond.Field[0] = c->finum;
@@ -2923,7 +2917,7 @@ WORD EditDialog::Init(WORD nL, WORD wT, WORD wE, BYTE but)
 	di[1].Type = DI_TEXT; di[1].Y1 = di[0].Y2 - 2; di[1].Flags = DIF_SEPARATOR;
 	if (bPrev) {
 		iPrev = iLast; di[iLast].Type = DI_BUTTON; di[iLast].Y1 = di[1].Y1 + 1;
-		di[iLast].Data[0] = 0x11; di[iLast].Data[1] = 0xc4; di[iLast].Data[2] = 0;
+		di[iLast].Data[0] = 0x11; di[iLast].Data[1] = (char) 0xc4; di[iLast].Data[2] = 0;
 		di[iLast].Flags = DIF_CENTERGROUP; ++iLast;
 	}
 	iOk = iLast; di[iLast].Type = DI_BUTTON; di[iLast].Y1 = di[1].Y1 + 1;
@@ -2935,7 +2929,7 @@ WORD EditDialog::Init(WORD nL, WORD wT, WORD wE, BYTE but)
 	di[iLast].Flags = DIF_CENTERGROUP; ++iLast;
 	if (bNext) {
 		iNext = iLast; di[iLast].Type = DI_BUTTON; di[iLast].Y1 = di[1].Y1 + 1;
-		di[iLast].Data[0] = 0xc4; di[iLast].Data[1] = 0x10; di[iLast].Data[2] = 0;
+		di[iLast].Data[0] = (char) 0xc4; di[iLast].Data[1] = 0x10; di[iLast].Data[2] = 0;
 		di[iLast].Flags = DIF_CENTERGROUP; ++iLast;
 	}
 	return 0;
@@ -3597,7 +3591,7 @@ void LOOK::GetConfig(bool inrun)
 		rz = RegQueryValueEx(hKey, "ExpSep", NULL, NULL, (BYTE*) u, &sz);
 		if (rz == ERROR_SUCCESS) { Exp.Sep[0] = u[0]; if (sz > 1)Exp.Sep[1] = u[1]; }
 		if (!Exp.Sep[0]) {
-			Exp.Sep[0] = 0xb3; Exp.Sep[1] = 0; sz = 2;   //-----> Разделитель экспорта
+			Exp.Sep[0] = DefExpSep; Exp.Sep[1] = 0; sz = 2;   //-----> Разделитель экспорта
 			if (sz)RegSetValueEx(hKey, "ExpSep", 0, REG_SZ, (BYTE*) Exp.Sep, sz);
 		}
 		sz = sizeof(val);
@@ -3934,19 +3928,19 @@ static LONG_PTR WINAPI DiProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 	short i;
 	WORD Q;
 	DWORD k, r_save;
-	FarDialogItem *di = (FarDialogItem *) Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 	switch (Msg) {
 	case DN_INITDIALOG:
 		Info.SendDlgMessage(hDlg, DM_SETDLGDATA, 0, Param2);
 		return 1;
 	case DN_RESIZECONSOLE:
 	{
-		COORD coo = (*(COORD*) Param2);
-		Q = coo.Y - 1; if (data->sh == Q && data->sw == coo.X) return 1;
+		FarDialogItem *di = (FarDialogItem *) Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+		COORD *coo = (COORD *) Param2;
+		Q = coo->Y - 1; if (data->sh == Q && data->sw == coo->X) return 1;
 		i = data->sh - Q;
 		if (i > 0 && data->curY > Q - 3) { data->recV[0] = data->recV[i]; data->curY -= i; }
 		data->sh = Q;
-		data->sw = coo.X;  data->Xcur += data->coCurr->wid;
+		data->sw = coo->X;  data->Xcur += data->coCurr->wid;
 		while (data->Xcur > data->sw && data->coCurr != data->coFirst) {
 			data->Xcur -= data->coFirst->wid; data->curX--;
 			data->coFirst = (Column *) (data->coFirst->Next());
@@ -3969,11 +3963,11 @@ static LONG_PTR WINAPI DiProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		data->ShowPage();
 		di[3].X2 = data->sw - 1; di[3].Y1 = data->sh; di[3].Y2 = data->sh;
 		di[3].VBuf = data->VBuf + data->sw*data->sh; data->KeyShow();
-		for (i = 0; i < 4; i++)Info.SendDlgMessage(hDlg, DM_SETDLGITEM, i, (long) (di + i));
-		coo.X = coo.Y = 0;
-		Info.SendDlgMessage(hDlg, DM_MOVEDIALOG, true, (long) &coo);
-		coo.X = data->sw; coo.Y = data->sh + 1;
-		Info.SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, (long) &coo);
+		for (i = 0; i < 4; i++) Info.SendDlgMessage(hDlg, DM_SETDLGITEM, i, (LONG_PTR) (di + i));
+		coo->X = coo->Y = 0;
+		Info.SendDlgMessage(hDlg, DM_MOVEDIALOG, true, (LONG_PTR) coo);
+		coo->X = data->sw; coo->Y = data->sh + 1;
+		Info.SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, (LONG_PTR) coo);
 		Info.SendDlgMessage(hDlg, DM_REDRAW, 0, 0);
 		return 1;
 	}
@@ -4092,7 +4086,7 @@ Q_EXEC: //---------------- Execute Navigation Result-----------
 			break;
 
 			//-------------------------------------------------- Operations with Marks
-		case KEY_INS: case KEY_SPACE:    // Mark/Unmark record
+		case KEY_INS: case KEY_SPACE: case KEY_NUMPAD0:   // Mark/Unmark record
 			if (data->MarkAlloc()) return 1;
 			data->MarkInvert(data->recV[data->curY]);
 			if (!data->MarkOnly) data->GoDn(1);
@@ -4353,7 +4347,7 @@ void LOOK::ShowDBF(void)
 	if (i & 0x0f) { ShowError(i); db.Close(); return; }
 	if (i)LookOnly = 1;
 	Find.Clear();
-	Exp.Sep[0] = 0xb3; Exp.Sep[1] = 0;
+	Exp.Sep[0] = DefExpSep; Exp.Sep[1] = 0;
 	aw = " Win";
 	GetScreenSize(); GetConfig();
 	if (!db.dbH.nrec) {
@@ -4402,7 +4396,7 @@ void LOOK::ShowDBF(void)
 	di[3].VBuf = VBuf + sw*sh; KeyShow();
 
 	Info.DialogEx(Info.ModuleNumber, 0, 0, sw - 1, sh, "Functions", di, 4, 0,
-				  FDLG_SMALLDIALOG | FDLG_NODRAWPANEL, DiProc, (long) di);
+				  FDLG_SMALLDIALOG | FDLG_NODRAWPANEL, DiProc, (LONG_PTR) di);
 	if (Yes(AutoSave))PutTemplate();
 	if (VBuf) { delete VBuf; VBuf = NULL; }
 	if (C) { delete C; C = NULL; }
