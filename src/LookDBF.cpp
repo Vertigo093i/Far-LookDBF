@@ -41,14 +41,13 @@ static BYTE MyRead(HANDLE h, LPVOID buf, DWORD len)
 
 static BOOL CheckForEsc(void)
 {
-	INPUT_RECORD *InputRec;
 	DWORD NumberOfEvents;
 	DWORD ReadCnt, i;
 	BOOL result = FALSE;
 	HANDLE Console = GetStdHandle(STD_INPUT_HANDLE);
 	if (!GetNumberOfConsoleInputEvents(Console, &NumberOfEvents)) return result;
 	if (!NumberOfEvents) return result;
-	InputRec = new INPUT_RECORD[NumberOfEvents];
+	INPUT_RECORD *InputRec = new INPUT_RECORD[NumberOfEvents];
 	if (!InputRec) return result;
 	if (ReadConsoleInput(Console, InputRec, NumberOfEvents, &ReadCnt))
 		for (i = 0; i < ReadCnt; ++i) {
@@ -58,7 +57,7 @@ static BOOL CheckForEsc(void)
 			result = TRUE;
 			break;
 		}
-	delete InputRec;
+	delete[] InputRec;
 	return result;
 }
 //===========================================================================
@@ -311,16 +310,16 @@ void LOOK::InitColumns(void)
 
 bool LOOK::BuildBuffers(bool ResizeFlag)
 {
-	DWORD Vis, Vir;
-	BYTE *v;
 	if (!ResizeFlag) {
+		if (C) { delete[] C; }
 		C = new Column[db.nfil];
 		if (!C) return true;
 		InitColumns();
 	}
-	Vir = (DWORD) (sh - 2)*sizeof(DWORD) + 16; Vir >>= 3; Vir <<= 3;
-	Vis = (DWORD) (sw) *(sh + 1)*sizeof(CHAR_INFO) + 32; Vis >>= 3; Vis <<= 3;
-	v = new BYTE[Vis + Vir];
+	if (VBuf) { delete VBuf; VBuf = NULL; }
+	DWORD Vir = (sh - 2) * sizeof(DWORD) + 16; Vir >>= 3; Vir <<= 3;
+	DWORD Vis = sw * (sh + 1) * sizeof(CHAR_INFO) + 32; Vis >>= 3; Vis <<= 3;
+	BYTE *v = new BYTE[Vis + Vir];
 	if (!v) return true;
 	VBuf = (CHAR_INFO *) v; v += Vis;
 	recV = (DWORD *) v;
@@ -584,10 +583,10 @@ void LOOK::ShowSum(void)
 	if (!n) { ShowError(6); return; }// There are no visible numeric fields
 	DWORD rn;
 	dbVal *V = new dbVal[n]; if (!V) { ShowError(4); return; }
-	FarMenuItem *fm = new FarMenuItem[n]; if (!fm) { delete V; ShowError(4); return; }
+	FarMenuItem *fm = new FarMenuItem[n]; if (!fm) { delete[] V; ShowError(4); return; }
 	for (rn = 1; rn <= db.dbH.nrec; rn++) {
 		if (!Marked(rn)) continue;
-		if (db.Read(rn)) { delete fm; delete V; ShowError(2); return; }
+		if (db.Read(rn)) { delete[] fm; delete[] V; ShowError(2); return; }
 		for (i = 0, c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
 			db.FiNum(c->finum); if (db.Numeric()) { db.Accum(V + i); ++i; }
 		}
@@ -617,7 +616,7 @@ void LOOK::ShowSum(void)
 	}
 	Info.Menu(Info.ModuleNumber, -1, -1, sh - 6, FMENU_WRAPMODE, GetMsg(mSum),
 			  NULL, "Functions", NULL, NULL, fm, n);
-	delete fm; delete V;
+	delete[] fm; delete[] V;
 }
 //===========================================================================
 
@@ -691,7 +690,7 @@ int LOOK::ShowFields(void)
 		i = Info.Dialog(Info.ModuleNumber, -1, -1, 44, 15 + h, "Functions", di, 11);
 	}
 	else i = Info.Dialog(Info.ModuleNumber, -1, -1, 44, 13 + h, "Functions", di, 10);
-	delete fl.Items;
+	delete[] fl.Items;
 	if (i == 9) return di[9].ListPos;
 	if (i == 10) return -2;
 	return -1;
@@ -725,10 +724,9 @@ int LOOK::TableSelect(void)
 {
 	int i, n;
 	CharTableSet cts;
-	FarMenuItem *fm;
 	n = 1;
 	while (Info.CharTable(n - 1, (char*) (&cts), sizeof(CharTableSet)) >= 0)n++;
-	fm = new FarMenuItem[n];
+	FarMenuItem *fm = new FarMenuItem[n];
 	if (!fm) { ShowError(4); return -1; }
 	lstrcpy(fm[0].Text, "Current Windows Code Table");
 	if (!ctsNum) fm[0].Selected = LIF_SELECTED;
@@ -739,7 +737,7 @@ int LOOK::TableSelect(void)
 	}
 	i = Info.Menu(Info.ModuleNumber, -1, -1, 0, FMENU_WRAPMODE,
 				  GetMsg(mCfgCodeTable), NULL, "Functions", NULL, NULL, fm, n);
-	delete fm;
+	delete[] fm;
 	if (i < 0) return 1;
 	if (TableSet(i)) return 1;
 	Clear(WinCode); ChangeCode();
@@ -1069,7 +1067,6 @@ WORD LOOK::Export(void)
 	BYTE idOk, idEmp, idType, idCode, idHead, idSpace, idSep, idSepV, idFile, idActual;
 	BYTE idFD, idFT, idBuff, idSort[3];
 	FarList flt, flc, lf1, lf2, lf3, ld1, ld2, ld3;
-	FarDialogItem *di;
 	idSort[0] = idSort[1] = idSort[2] = 0;
 	ColQty = 0;
 	for (c = (Column*) coFirst->Head(); c; c = (Column*) c->Next()) {
@@ -1079,9 +1076,9 @@ WORD LOOK::Export(void)
 		ColQty++;
 	}
 	j = ColQty; if (j > 3)j = 3;  ++ColQty;
-	di = new FarDialogItem[23 + j * 3];
+	FarDialogItem *di = new FarDialogItem[23 + j * 3];
 	flt.Items = new FarListItem[6 + (ColQty + 2)*j];
-	if (!flt.Items) { delete di; ShowError(4); return 1; }
+	if (!flt.Items) { delete[] di; ShowError(4); return 1; }
 	flt.ItemsNumber = 3;  flt.Items[Exp.Form].Flags = LIF_SELECTED;
 	lstrcpy(flt.Items[0].Text, ".txt");
 	lstrcpy(flt.Items[1].Text, ".htm");
@@ -1249,9 +1246,9 @@ WORD LOOK::Export(void)
 	idEmp = i; ++i;
 	j = Info.DialogEx(Info.ModuleNumber, -1, -1, 61, 17,
 					  "Export", di, i, 0, 0, DiExp, (LONG_PTR) di);
-	if (!di[idFile].Data[0]) { delete flt.Items; delete di; return 1; }
+	if (!di[idFile].Data[0]) { delete[] flt.Items; delete[] di; return 1; }
 	if (j == idEmp) { Set(ExpEmpty); j = idOk; }
-	if (j != idOk) { delete flt.Items; delete di; return 1; }
+	if (j != idOk) { delete[] flt.Items; delete[] di; return 1; }
 	lstrcpy(Exp.File, di[idFile].Data);
 	DTs2f(di[idFD].Data, fmtDE); DTs2f(di[idFT].Data, fmtTE);
 	Exp.Form = di[idType].ListPos; Exp.CoType = di[idCode].ListPos;
@@ -1280,7 +1277,7 @@ WORD LOOK::Export(void)
 	case 2: if (di[idSep].Selected)Set(ExpFileType); else Clear(ExpFileType);
 		Exp.Type[0] = di[idSepV].Data[0]; Exp.Type[1] = di[idSepV].Data[1];
 	}
-	delete flt.Items; delete di;
+	delete[] flt.Items; delete[] di;
 	Exp.code = Exp.CoType; Exp.recnum = Exp.count = 0;
 	switch (Exp.CoType) {
 	case 1: Exp.code = Yes(WinCode) ? 2 : 0; break;
@@ -2058,7 +2055,7 @@ short LOOK::CondAsk(void)
 	db.FiType(di[i].Data);
 
 	i = Info.DialogEx(Info.ModuleNumber, -1, -1, 57, 14, "Cond", di, 16, 0, 0, DiCond, (LONG_PTR) di);
-	delete op.Items;
+	delete[] op.Items;
 	if (i < 11)return 0;
 	c = FieldItem(di[1].ListPos); Cond.Field[0] = c->finum;
 	j = (db.cf->type == 'D' || db.cf->type == 'T') ? 4 : 3;
@@ -2355,8 +2352,7 @@ static LONG_PTR WINAPI DiRepl(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 short LOOK::ReplaceAsk(void)
 {
 	int i, j, x;
-	FarDialogItem *di;
-	di = new FarDialogItem[5];
+	FarDialogItem *di = new FarDialogItem[5];
 	di[0].Type = DI_TEXT;   di[0].X1 = 1;
 	lstrcpy(di[0].Data, GetMsg(mReplAsk)); x = lstrlen(di[0].Data) + 2;
 	di[1].Type = DI_BUTTON; di[1].X1 = x;
@@ -2371,7 +2367,7 @@ short LOOK::ReplaceAsk(void)
 	di[4].X1 = x + j; di[4].X2 = di[4].X1 + i - 1;
 	i = Info.DialogEx(Info.ModuleNumber, 0, sh, sw - 1, sh, "Edit", di, 5, 0,
 					  FDLG_SMALLDIALOG, DiRepl, 0);
-	delete di;
+	delete[] di;
 	return i;
 }
 //===========================================================================
@@ -2379,8 +2375,7 @@ short LOOK::ReplaceAsk(void)
 short LOOK::ReplaceDlg(void)
 {
 	int i, j;
-	FarDialogItem *di;
-	di = new FarDialogItem[14];
+	FarDialogItem *di = new FarDialogItem[14];
 
 	di[0].Type = DI_DOUBLEBOX; di[0].X1 = 3; di[0].X2 = sw - 8;
 	di[0].Y1 = 1; di[0].Y2 = 11;
@@ -2433,7 +2428,7 @@ short LOOK::ReplaceDlg(void)
 
 	i = Info.Dialog(Info.ModuleNumber, -1, -1, sw - 4, 13, "Search", di, 14);
 	data->Find.Step = data->Find.Pos = 0; data->Clear(FindReplace);
-	if (i < 11) { delete di; return 0; }
+	if (i < 11) { delete[] di; return 0; }
 	if (di[5].Selected)Set(FindAllFields); else Clear(FindAllFields);
 	if (di[6].Selected)Set(FindCaseSens);  else Clear(FindCaseSens);
 	if (di[7].Selected)Set(WholeWords);    else Clear(WholeWords);
@@ -2458,7 +2453,7 @@ short LOOK::ReplaceDlg(void)
 	ShowStatus(5); // Fill Search string place
 	if (di[10].Data[0])Find.Mask[0] = di[10].Data[0];
 	if (di[10].Data[1])Find.Mask[1] = di[10].Data[1];
-	delete di;
+	delete[] di;
 	if (Yes(WinCode))ToAlt(Find.RU);
 	// 1 - Unmarked, 2 - Marked, 3 - All
 	return i - 10;
@@ -2863,7 +2858,7 @@ struct EditDialog {
 	WORD yLine;        // Y for next init line
 	FarDialogItem *di; // Dialog items array
 
-	~EditDialog() { if (di) delete di; };
+	~EditDialog() { if (di) { delete[] di; di = NULL; } };
 	WORD Init(WORD nL, WORD wT, WORD wE, BYTE but);
 	short Line(char *t, char *e, short w, const char *mask = NULL);
 	short Exec(void);
@@ -2940,7 +2935,6 @@ WORD LOOK::EditRecord(void)
 	short i, j, nL, nD, dL, rL, wT, wE;
 	char *r, s[384];
 	BYTE but;
-	EditDialog *ed;
 	Column *c = (Column *) coFirst->Head();
 	if (db.Read(recV[curY])) { ShowError(2); return 1; }
 	db.fmtD = fmtD; db.fmtT = fmtT;
@@ -2950,14 +2944,14 @@ WORD LOOK::EditRecord(void)
 		if (i > wE) wE = i;
 	}
 	j = sh - 6; nD = (nL + j - 1) / j; dL = nL / nD; rL = nL%nD;
-	ed = new EditDialog[nD];
+	EditDialog *ed = new EditDialog[nD];
 	if (!ed) { ShowError(4); db.fmtD = fmtDV; db.fmtT = fmtTV; return 1; }
 	j = sw - 13; if (wT + wE > j) wE = j - wT;
 	for (i = 0; i < nD; i++) {
 		but = 0x03; j = dL; if (rL) { ++j; --rL; }
 		if (!i) but &= 0x01; if (nD - i == 1) but &= 0x02;
 		if (ed[i].Init(j, wT, wE, but)) {
-			delete ed; ShowError(4);
+			delete[] ed; ShowError(4);
 			db.fmtD = fmtDV; db.fmtT = fmtTV;
 			return 1;
 		}
@@ -2980,7 +2974,7 @@ WORD LOOK::EditRecord(void)
 		j = ed[i].Exec(); if (j < 2) break;
 		if (j - 2)i++; else i--;
 	}
-	if (j<0) { delete ed; db.fmtD = fmtDV; db.fmtT = fmtTV; return 1; }
+	if (j<0) { delete[] ed; db.fmtD = fmtDV; db.fmtT = fmtTV; return 1; }
 	if (data->LookOnly) {
 		data->ShowError(8);
 		db.fmtD = fmtDV; db.fmtT = fmtTV;
@@ -2991,7 +2985,7 @@ WORD LOOK::EditRecord(void)
 		if (Yes(WinCode) && db.FiChar())ToAlt(r);
 		db.SetField(r);
 	}
-	delete ed;
+	delete[] ed;
 	db.fmtD = fmtDV; db.fmtT = fmtTV;
 	if (j) {
 		for (c = Hid; c; c = (Column *) c->Prev()) { db.FiNum(c->finum); db.SetEmpty(); }
@@ -3418,14 +3412,13 @@ WORD LOOK::ClmnInsert(void)
 	}
 	Column *h;
 	int i, NumItem;
-	FarMenuItem *fm;
 	for (NumItem = 0, h = Hid; h; h = (Column *) h->Prev())NumItem++;
-	fm = new FarMenuItem[NumItem]; if (!fm) { ShowError(4); return 1; }
+	FarMenuItem *fm = new FarMenuItem[NumItem]; if (!fm) { ShowError(4); return 1; }
 	fm[0].Selected = 1;
 	for (i = 0, h = Hid; h; i++, h = (Column *) h->Prev()) lstrcpy(fm[i].Text, h->name);
 	i = Info.Menu(Info.ModuleNumber, -1, -1, sh - 6, FMENU_WRAPMODE, GetMsg(mColIns),
 				  NULL, "Functions", NULL, NULL, fm, NumItem);
-	delete fm; if (i < 0) return 1;
+	delete[] fm; if (i < 0) return 1;
 	for (h = Hid; i; i--, h = (Column *) h->Prev());
 	h->Extract(); if (!h->Next()) Hid = (Column *) h->Prev();
 	--HidNum; ShowStatus(4); coCurr->Before(h);
@@ -3946,7 +3939,6 @@ static LONG_PTR WINAPI DiProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			data->coFirst = (Column *) (data->coFirst->Next());
 		}
 		r_save = data->recV[0];
-		if (data->VBuf) { delete data->VBuf; data->VBuf = NULL; }
 		if (data->BuildBuffers(true)) {
 			data->ShowError(4);
 			Info.SendDlgMessage(hDlg, DM_CLOSE, 0, 0);
@@ -4399,7 +4391,7 @@ void LOOK::ShowDBF(void)
 				  FDLG_SMALLDIALOG | FDLG_NODRAWPANEL, DiProc, (LONG_PTR) di);
 	if (Yes(AutoSave))PutTemplate();
 	if (VBuf) { delete VBuf; VBuf = NULL; }
-	if (C) { delete C; C = NULL; }
+	if (C) { delete[] C; C = NULL; }
 	db.Close();
 }
 //===========================================================================

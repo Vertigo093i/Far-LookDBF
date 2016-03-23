@@ -522,7 +522,7 @@ void dbBase::Close(void)
 	if (f != INVALID_HANDLE_VALUE) { SaveHeader(); CloseHandle(f); }
 	if (m != INVALID_HANDLE_VALUE) CloseHandle(m);
 	if (dbF)dbF->DestroyAll();
-	if (rec)delete rec;
+	if (rec) delete[] rec;
 	ZeroMemory(this, sizeof(dbBase));
 	f = m = INVALID_HANDLE_VALUE;
 }
@@ -771,9 +771,7 @@ BAD_WRITE:
 
 void dbBase::Add(char *fname, char ftype, BYTE flen, BYTE fdec)
 {
-	dbField *d;
-	d = new dbField;
-	ZeroMemory(d, sizeof(dbField));
+	dbField *d = new dbField;
 	lstrcpy(d->name, fname);
 	d->type = ftype;
 	d->filen = flen;
@@ -786,9 +784,7 @@ void dbBase::Add(char *fname, char ftype, BYTE flen, BYTE fdec)
 
 void dbBase::AddF(dbField *of, char *fname, char ftype, BYTE flen, BYTE fdec)
 {
-	dbField *d;
-	d = new dbField;
-	ZeroMemory(d, sizeof(dbField));
+	dbField *d = new dbField;
 	CopyMemory(d->spare, of->spare, 14);
 	if (fname)lstrcpy(d->name, fname); else lstrcpy(d->name, of->name);
 	if (ftype)d->type = ftype; else d->type = of->type;
@@ -819,7 +815,6 @@ BYTE dbBase::AddNull(void)
 	}
 	if ((!ind) && msk == 1) return 0;
 	d = new dbField;
-	ZeroMemory(d, sizeof(dbField));
 	lstrcpy(d->name, "_NullFlags");
 	d->type = '0';
 	d->filen = (msk == 1) ? ind : ind + 1;
