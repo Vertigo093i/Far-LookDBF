@@ -1,8 +1,8 @@
-  LookDBF ver 2.06 beta. 18.12.2006
+  LookDBF version 2.7. 25.03.2016
            Plug-In for 
-FarManager 1.70 beta 5 and higher
+   Far Manager 1.75 and higher
 ---------------------------------------
-C++Builder 6 sources included
+MSVC++ sources included
 ---------------------------------------
 DBF-files view, change, export and import
 Visual FoxPro binary fields support
@@ -11,12 +11,14 @@ Written by:
 Alexei Boltunov.
 alexbolt@mail.ru
 alexbolt@narod.ru
+Updated by Andrew Nefedkin.
+https://github.com/Vertigo093i/Far-LookDBF
 
 
-  LookDBF версия 2.06 beta. 18.12.2006
-   Плагин для Far 1.70 beta 5 и выше
+  LookDBF версия 2.7. 25.03.2016
+   Плагин для Far 1.75 и выше
 ---------------------------------------
-  С исходными текстами C++Builder 6 
+  С исходными текстами для MSVC++
 ---------------------------------------
 DBF-файлы. Просмотр, редактирование,
 экспорт и импорт. Поддержка бинарных
@@ -25,4 +27,6 @@ DBF-файлы. Просмотр, редактирование,
 Алексей Болтунов.
 E-mail: alexbolt@mail.ru или alexbolt@narod.ru
 http://alexbolt.narod.ru
+Доработка: Андрей Нефёдкин.
+https://github.com/Vertigo093i/Far-LookDBF
 

@@ -17,6 +17,14 @@
       <UniqueIdentifier>{735aa314-2fd5-4192-b230-9198a37e2cf5}</UniqueIdentifier>
       <Extensions>hpp</Extensions>
     </Filter>
+    <Filter Include="Language Files">
+      <UniqueIdentifier>{0329377-fe44-4d7b-833d-cbd2efecd35a}</UniqueIdentifier>
+      <Extensions>lng</Extensions>
+    </Filter>
+    <Filter Include="Help Files">
+      <UniqueIdentifier>{9b8726bd-d9c1-416c-8039-5e686cf23409}</UniqueIdentifier>
+      <Extensions>hlf</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\db_use.cpp">
@@ -64,10 +72,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LookDBF_en.hlf" />
-    <Content Include="LookDBF_en.lng" />
-    <Content Include="LookDBF_ru.hlf" />
-    <Content Include="LookDBF_ru.lng" />
+    <Content Include="LookDBF_en.lng">
+      <Filter>Language Files</Filter>
+    </Content>
+    <Content Include="LookDBF_ru.lng">
+      <Filter>Language Files</Filter>
+    </Content>
+    <Content Include="LookDBF_en.hlf">
+      <Filter>Help Files</Filter>
+    </Content>
+    <Content Include="LookDBF_ru.hlf">
+      <Filter>Help Files</Filter>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\LookDBF.rc">

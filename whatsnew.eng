@@ -10,6 +10,14 @@
 [*] Changes              ³  WMID:009807013498, Z804712443609, R42074294843
 
 ---------------------------------------------------------------------------
+LookDBF 2.7 - 25.03.2016
+---------------------------------------------------------------------------
+[+] x64 build
+[+] Far2+ WindowMode support
+[-] Fixed crashes caused by small (w < 74) consoles sizes ;-)
+[*] Used proper registry key from PluginStartupInfo
+
+---------------------------------------------------------------------------
 LookDBF 2.06 beta. - 18.12.2006
 ---------------------------------------------------------------------------
 [-] Code table change (F8, Shift+F8) had no influence on V - VarChar and
