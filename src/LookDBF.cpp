@@ -1703,47 +1703,37 @@ char *LOOK::NameScratch(char *nm)
 }
 //===========================================================================
 
-int LOOK::AskMsg(const TCHAR *const *s, int n)
+int LOOK::AskMsg(const TCHAR *s)
 {
-	if (n < 1) return -1;
-	TCHAR **Msg = new TCHAR*[n + 1];
-	for (int ndx = 0; ndx < n; ndx++)
-		Msg[ndx] = (TCHAR *) s[ndx];
-	Msg[n] = TEXT("\x01");
-	int result = Info.Message(Info.ModuleNumber, FMSG_MB_OKCANCEL, TEXT("Functions"), Msg, n + 1, 0);
-	delete Msg;
-	return result;
+	TCHAR Msg[256];
+	lstrcpyn(Msg, s, 254);
+	lstrcat(Msg, TEXT("\n\x01"));
+	return Info.Message(Info.ModuleNumber, FMSG_ALLINONE | FMSG_MB_OKCANCEL, TEXT("Functions"), (const TCHAR *const *) Msg, 0, 0);
 }
 //===========================================================================
 
-void LOOK::OkMsg(const TCHAR *const *s, int n)
+void LOOK::OkMsg(const TCHAR *s)
 {
-	if (n < 1) return;
-	TCHAR **Msg = new TCHAR*[n + 1];
-	for (int ndx = 0; ndx < n; ndx++)
-		Msg[ndx] = (TCHAR *) s[ndx];
-	Msg[n] = TEXT("\x01");
-	Info.Message(Info.ModuleNumber, FMSG_MB_OK, TEXT("Functions"), Msg, n + 1, 0);
-	delete Msg;
+	TCHAR Msg[256];
+	lstrcpyn(Msg, s, 254);
+	lstrcat(Msg, TEXT("\n\x01"));
+	Info.Message(Info.ModuleNumber, FMSG_ALLINONE | FMSG_MB_OK, TEXT("Functions"), (const TCHAR *const *) Msg, 0, 0);
 }
 //===========================================================================
 
 WORD LOOK::PackDbf(void)
 {
 	char scratch[MAX_PATH];
-	DWORD step;
-	dbField *c;
+	lstrcpy(scratch, "\n");
+	lstrcat(scratch, GetMsg(mPkTitle));
+	if (AskMsg(scratch)) return 1;
 	dbBase a;
-	{
-		const char *Msg[] = { GetMsg(mPkTitle), "?" };
-		if (AskMsg(Msg, ARRAYSIZE(Msg))) return 1;
-	}
-	for (c = db.dbF; c; c = (dbField *) c->Next())a.AddF(c);
+	for (auto c = db.dbF; c; c = (dbField *) c->Next()) a.AddF(c);
 	if (a.Create(NameScratch(scratch), db.dbH.type, &db)) { ShowError(1); return 1; }
 	if (db.Read(1)) { ShowError(2); a.Close(); return 1; }
 	Indic.Start(GetMsg(mPkTitle), db.dbH.nrec);
 	for (;;) {
-		step = 1;
+		DWORD step = 1;
 		while (db.Invalid()) { ++step; if (db.NextRec()) goto FINISH; }
 		if (Indic.Move(step)) goto ESC_BREAK;
 		CopyMemory(a.rec, db.rec, db.dbH.reclen);
@@ -1757,10 +1747,10 @@ FINISH:
 	MarkFree();
 	db.Open(FileName, LookOnly);
 	db.fmtD = fmtD; db.fmtT = fmtT;
-	{
-		const char *Msg[] = { GetMsg(mPkTitle), GetMsg(mPkGood) };
-		OkMsg(Msg, ARRAYSIZE(Msg));
-	}
+	lstrcpy(scratch, GetMsg(mPkTitle));
+	lstrcat(scratch, "\n");
+	lstrcat(scratch, GetMsg(mPkGood));
+	OkMsg(scratch);
 	if (!db.dbH.nrec) {
 		if (ShowFields() > -2) return 2;
 		if (db.Append()) { ShowError(2); return 2; }

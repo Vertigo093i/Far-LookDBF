@@ -285,8 +285,8 @@ struct LOOK {
 	void Clipboard(void);
 	void ClearCur(void);
 
-	int AskMsg(const TCHAR *const *s, int n);
-	void OkMsg(const TCHAR *const *s, int n);
+	int AskMsg(const TCHAR *s);
+	void OkMsg(const TCHAR *s);
 	void ShowCur(void);
 	void ShowError(int index);
 	void ShowExpMsg(DWORD msec);
