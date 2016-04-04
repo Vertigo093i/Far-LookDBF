@@ -172,8 +172,8 @@
     <ClInclude Include="common\ascii\farversion.hpp" />
     <ClInclude Include="common\ascii\plugin.hpp" />
     <ClInclude Include="src\db_use.h" />
+    <ClInclude Include="src\guid.h" />
     <ClInclude Include="src\LookDBF.h" />
-    <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
     <ClInclude Include="src\version.h" />

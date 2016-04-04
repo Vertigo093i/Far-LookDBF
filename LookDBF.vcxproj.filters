@@ -56,7 +56,7 @@
     <ClInclude Include="common\ascii\farversion.hpp">
       <Filter>Plugin SDK</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource.h">
+    <ClInclude Include="src\guid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\stdafx.h">
