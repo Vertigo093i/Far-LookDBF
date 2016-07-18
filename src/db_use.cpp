@@ -372,7 +372,7 @@ int MyCmp(const char *s, const char *f)
 	return i;
 }
 //---------------------------------------------------------------------------
-// Cтрока формата f со специальными кодами переводится в
+// Строка формата f со специальными кодами переводится в
 // строку формата s с буквенными кодами (см.DTcode)
 
 char *DTf2s(const char *f, char *s) {
@@ -388,7 +388,7 @@ char *DTf2s(const char *f, char *s) {
 }
 //---------------------------------------------------------------------------
 
-// Cтрока формата f со специальными кодами переводится в форматную строку
+// Строка формата f со специальными кодами переводится в форматную строку
 // FAR для элемента диалога DI_FIXEDIT
 
 char *DTf29(char *f, char *s) {
@@ -544,13 +544,13 @@ WORD ParseMemoExt(char *mem, const char *mext)
 		for (me = mext; *me;) {
 			if (*me != ':') {
 				i = MyCmp(me, e);
-				if (me[i] == ':') {                    // extention definition found
+				if (me[i] == ':') {                    // extension definition found
 					++i;
-					if (!me[i] || me[i] == ',') {        // memo extention is empty
+					if (!me[i] || me[i] == ',') {        // memo extension is empty
 						mem[r] = 0;
 						break;
 					}
-					for (me += i; *me; e++, me++) {         // memo extention added
+					for (me += i; *me; e++, me++) {         // memo extension added
 						*e = *me; if (*e == ',') { *e = 0; return 0; }
 					}
 					return 0;
@@ -561,10 +561,10 @@ WORD ParseMemoExt(char *mem, const char *mext)
 	}
 	else {
 		for (me = mext; *me;) {
-			if (*me == ':') {                        // empty extention defined
-				++me; if (*me == ',' || *me == 0) break; // empty extention defined as empty!
+			if (*me == ':') {                        // empty extension defined
+				++me; if (*me == ',' || *me == 0) break; // empty extension defined as empty!
 				e = mem + n; *e = '.'; ++e;
-				for (; *me; e++, me++) {                // memo extention for empty added
+				for (; *me; e++, me++) {                // memo extension for empty added
 					*e = *me; if (*e == ',') { *e = 0; return 0; }
 				}
 				return 0;
@@ -640,12 +640,12 @@ BYTE dbBase::Open(char *file, BYTE ronly)
 	}
 	if (!ReadFile(f, &dbH, 32, &nbr, NULL) || nbr < 32) return 2;
 	if (dbH.reclen == 0 || dbH.start <= 64 || dbH.nrec < 0) return 2;
-	dbField *d, *h;
+	dbField *h;
 	rl = 1; h = NULL, lh = 0;
 	for (nfil = 0;;) {
 		lh += 32;
 		if (lh + 1 > dbH.start) break;
-		d = new dbField;
+		auto d = new dbField;
 		ZeroMemory(d, sizeof(dbField));
 		if (!ReadFile(f, d->name, 32, &nbr, NULL)) {
 DB_ERROR:
@@ -662,7 +662,7 @@ DB_ERROR:
 	k = 0;
 	while (rl < dbH.reclen) {
 		n = dbH.reclen - rl; if (n > 255)n = 255;
-		d = new dbField; ZeroMemory(d, sizeof(dbField));
+		auto d = new dbField; ZeroMemory(d, sizeof(dbField));
 		FSF.sprintf(d->name, "#%d#", ++k);
 		d->type = '#'; d->filen = n;
 		rl += d->filen;
@@ -675,22 +675,22 @@ DB_ERROR:
 	nbr = rl + lhext + 18; nbr = (nbr + 7) / 8; nbr *= 8;
 	rec = new BYTE[nbr];
 	if (!rec) return 4;
-	//-------- Read Header Extention after field's headers
+	//-------- Read Header Extension after field's headers
 	//-------- 1 byte value 0x0d as minimum
 	nbr = (rl + 9) / 8; nbr *= 8;
 	Hext = rec + nbr;
 	if (SetFilePointer(f, lh, NULL, FILE_BEGIN) == 0xFFFFFFFF) return 2;
 	if (!ReadFile(f, Hext, lhext, &nbr, NULL) || nbr < lhext) return 2;
 	Hext[0] = 0x0d;
-	//-------- _NullFlags field for nulable and variable length fields
+	//-------- _NullFlags field for nullable and variable length fields
 	//-------- recognized and set if it present
 	ind = 0; msk = 1; Nflg = NULL;
-	for (d = dbF; d; d = (dbField*) (d->Next())) {
+	for (auto d = dbF; d; d = (dbField*) (d->Next())) {
 		if ((d->spare[0] & 0x05) != 5) continue;
 		if (MyCmp(d->name, "_NullFlags") != 10) continue;
 		Nflg = rec + d->loc;
 	}
-	if (Nflg) for (d = dbF; d; d = (dbField*) (d->Next())) {
+	if (Nflg) for (auto d = dbF; d; d = (dbField*) (d->Next())) {
 		if (d->type == 'V' || d->type == 'Q') { // Variable length field
 			d->mskV = msk; d->indV = ind;
 			if (msk & 0x80) { ind++; msk = 1; }
@@ -738,7 +738,7 @@ BYTE dbBase::Create(char *file, BYTE t, dbBase *dc)
 	if (dbH.reclen == 1)return 3;
 	lhext = 1;
 	if (dc) lhext = dc->lhext;
-	else if ((dbH.type & 0x30) == 0x30)lhext = 264; // Visual FoxPro Header Extention
+	else if ((dbH.type & 0x30) == 0x30)lhext = 264; // Visual FoxPro Header Extension
 	dbH.start += lhext;
 	lh = dbH.reclen + lhext + 18; lh = (lh + 7) / 8; lh *= 8;
 	rec = new BYTE[lh]; if (!rec) return 4;
@@ -772,7 +772,7 @@ BAD_WRITE:
 void dbBase::Add(char *fname, char ftype, BYTE flen, BYTE fdec)
 {
 	dbField *d = new dbField;
-	lstrcpy(d->name, fname);
+	lstrcpyn(d->name, fname, 11);
 	d->type = ftype;
 	d->filen = flen;
 	d->dec = fdec;
@@ -786,7 +786,7 @@ void dbBase::AddF(dbField *of, char *fname, char ftype, BYTE flen, BYTE fdec)
 {
 	dbField *d = new dbField;
 	CopyMemory(d->spare, of->spare, 14);
-	if (fname)lstrcpy(d->name, fname); else lstrcpy(d->name, of->name);
+	if (fname) lstrcpyn(d->name, fname, 11); else lstrcpy(d->name, of->name);
 	if (ftype)d->type = ftype; else d->type = of->type;
 	if (flen)d->filen = flen;  else d->filen = of->filen;
 	if (fdec)d->dec = fdec;    else d->dec = of->dec;

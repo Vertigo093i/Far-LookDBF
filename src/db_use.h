@@ -129,123 +129,122 @@ struct dbBase {
 	dbBase() { ZeroMemory(this, sizeof(dbBase)); f = m = INVALID_HANDLE_VALUE; }
 	~dbBase() { Close(); }
 
-	BYTE Invalid(void) { return (rec[0] == '*'); };
 	// Возвращает 1, если запись помечена для удаления. Иначе 0.
-	void Add(char *fname, char ftype, BYTE flen, BYTE fdec);
+	BYTE Invalid(void) { return (rec[0] == '*'); };
 	// Добавляет структуру поля в цепочку dbF
-	void AddF(dbField *of, char *fname = NULL, char ftype = 0, BYTE flen = 0, BYTE fdec = 0);
+	void Add(char *fname, char ftype, BYTE flen, BYTE fdec);
 	// Добавляет копию структуры поля of в цепочку dbF
 	// Сверху копии лепит параметры, если заданы.
-	BYTE AddNull(void);
+	void AddF(dbField *of, char *fname = NULL, char ftype = 0, BYTE flen = 0, BYTE fdec = 0);
 	// Добавляет структуру поля _NullFlags в цепочку dbF.
 	// Возвращает длину поля _NullFlags.
 	// Если в этом поле нет необходимости, ничего не добавляется
 	// и возвращается 0
-	BYTE Open(char *file, BYTE ronly = 0);
+	BYTE AddNull(void);
 	// Открывает существующую БД и считывает первую запись
 	// 0 - OK, 1 - плохо
-	void OpenMemo(const char *file, const char *mext = NULL);
+	BYTE Open(char *file, BYTE ronly = 0);
 	// Если есть мемо, открывает его и определяет тип и длину блока
 	// file - имя файла таблицы
 	// mext - строка определения расширения мемо-файла по расширению таблицы
-	BYTE Create(char *file, BYTE t, dbBase *dc = NULL);
+	void OpenMemo(const char *file, const char *mext = NULL);
 	// Создает новую БД, используя данные из струтуры dbBase
 	// если задано dc, в новую базу копируется расширение заголовока
 	// и его резервные поля
 	// 0 - OK, 1 - плохо
-	void SaveHeader(void);
+	BYTE Create(char *file, BYTE t, dbBase *dc = NULL);
 	// Перезаписывает заголовок
-	void Close(void);
+	void SaveHeader(void);
 	// Закрывает БД
+	void Close(void);
 
-	BYTE NextRec(void);
 	// Читает следующую запись. Устанавливает pos и cur.
 	// Возврат: 0 - OK, 1 - текущая запись была последней,
 	//          2 - ошибка чтения файла.
-	BYTE CurrRec(void);
+	BYTE NextRec(void);
 	// Перечитывает текующую запись. Устанавливает pos и cur.
 	// Возврат: 0 - OK, 1 - текущей записи не было (cur=0),
 	//          2 - ошибка чтения файла.
-	BYTE PrevRec(void);
+	BYTE CurrRec(void);
 	// Читает предыдующую запись. Устанавливает pos и cur.
 	// Возврат: 0 - OK, 1 - текущая запись была первой,
 	//          2 - ошибка чтения файла.
-	BYTE Read(DWORD rn);
+	BYTE PrevRec(void);
 	// Читает запись с номером rn (счет от 1).
 	// Устанавливает pos и cur. Запись становится текущей.
 	// Возврат: 0 - OK, 1 - rn превышает число записей,
 	//          2 - ошибка чтения файла.
-	BYTE Write(void);
+	BYTE Read(DWORD rn);
 	// Записывает rec с текущей позиции pos.
 	// Устанавливает pos и cur. Запись становится текущей.
 	// Возврат: 0 - OK, 2 - ошибка записи файла.
-	BYTE ReWrite(void);
+	BYTE Write(void);
 	// Перезаписывает rec как текущую запись.
 	// pos и cur не изменяется.
 	// Возврат: 0 - OK, 1 - текущей записи не было (cur=0),
 	//          2 - ошибка записи файла.
-	BYTE Append(void);
+	BYTE ReWrite(void);
 	// Добавляет rec как новую запись в конец файла.
 	// Устанавливает pos и cur, наращивает dbH.nrec. Запись становится текущей.
 	// Возврат: 0 - OK, 2 - ошибка записи файла.
+	BYTE Append(void);
 
-	dbField *FiName(char *fname);
 	// Находит в цепочке dbF поле с именем fname.
 	// Устанавливает cf, возвращает cf.
 	// Если не нашла, устанавливает cf=NULL.
-	dbField *FiNum(WORD fnum);
+	dbField *FiName(char *fname);
 	// Находит в цепочке dbF поле с номером fnum (счет от 0).
 	// Устанавливает cf, возвращает cf.
 	// Если не нашла, устанавливает cf=NULL.
-	BYTE FiNull(void);
+	dbField *FiNum(WORD fnum);
 	// Возвращает 1, если текущее поле не имеет значения, иначе 0.
-	BYTE FiChar(void);
+	BYTE FiNull(void);
 	// Возвращает 1, если текущее поле символьное(C,Q,V), иначе 0.
-	BYTE FiNotFull(void);
+	BYTE FiChar(void);
 	// Возвращает 1, если текущее поле переменной длины неполное, иначе 0.
-	WORD FiDisp(char* s, BYTE nll = 1);
+	BYTE FiNotFull(void);
 	// Преобразует значение поля в читабельный формат в зависимости от
 	// его типа и помещает в стрку s. Завершает строку нулевым байтом.
 	// Возвращает длину строки.
 	// Если nll=1 и у поля нет значения (NULL), возвращает строку "Null".
 	// Иначе возвращает содержимое поля, даже если оно помечено как Null.
-	WORD FiDispE(char* s);
+	WORD FiDisp(char* s, BYTE nll = 1);
 	// То же, но убирает левые пробелы. Используется для редактирования.
 	// Возвращает содержимое поля, даже если оно помечено как Null.
+	WORD FiDispE(char* s);
+	// Возвращает текстовое название поля вместе с длиной, точностью
+	// и нуль-флагом
 	char *FiType(char *s);
-	// Возвращает текстовае название поля вместе с длиной, точностью
-	// и нуль-флагом 
-	WORD FiWidth(void);
 	// Возвращает число символов для текстового представления поля
+	WORD FiWidth(void);
 
+	// Заполняет пробелами rec
 	void Clear(void);
-	// Зполняет пробелами rec
-	void SetEmpty(void);
 	// Заполняет пробелами или нулями текущее поле в rec.
-	void SetNull(void);
+	void SetEmpty(void);
 	// Устанавливает NullFlag для текущего поля.
-	void SetNotNull(void);
+	void SetNull(void);
 	// Сбрасывает NullFlag для текущего поля.
-	void SetNotFull(void);
+	void SetNotNull(void);
 	// Устанавливает флаг неполноты для текущего поля переменной длины.
-	void SetFull(void);
+	void SetNotFull(void);
 	// Сбрасывает флаг неполноты для текущего поля переменной длины.
-	BYTE IsEmpty(void);
+	void SetFull(void);
 	// Определяет пусто ли текущее поле
+	BYTE IsEmpty(void);
+	// То же с предварительным поиском поля по имени fname.
+	// Если ОК, возвращает 0. Если поле не найдено возвращает 1.
 	BYTE SetFiEmpty(char *fname);
-	// То же с предварительным поиском поля по имени fname.
-	// Если ОК, возвращает 0. Если поле не найдено возвращает 1.
-	void SetLeft(char *fval);
 	// Переносит fval в текущее поле в rec. Выравнивание влево.
+	void SetLeft(char *fval);
+	// То же с предварительным поиском поля по имени fname.
+	// Если ОК, возвращает 0. Если поле не найдено возвращает 1.
 	BYTE SetFiLeft(char *fname, char *fval);
-	// То же с предварительным поиском поля по имени fname.
-	// Если ОК, возвращает 0. Если поле не найдено возвращает 1.
-	void SetRight(char *fval);
 	// Переносит fval в текущее поле в rec. Выравнивание вправо.
-	BYTE SetFiRight(char *fname, char *fval);
+	void SetRight(char *fval);
 	// То же с предварительным поиском поля по имени fname.
 	// Если ОК, возвращает 0. Если поле не найдено возвращает 1.
-	void SetLong(long fval, char dec = 1);
+	BYTE SetFiRight(char *fname, char *fval);
 	// Если тип поля I (Integer*4), то так и вставляется. Иначе,
 	// преобразует fval в текст, вставляет точку в нужном месте и
 	// переносит его в текущее поле в rec. Выравнивание вправо.
@@ -257,45 +256,45 @@ struct dbBase {
 	// Поле Number 8.0 SetLong(12345,0)   -->    12345
 	// Поле Number 6.2 SetLong(12345[,1]) -->   123.45
 	// Поле Number 6.2 SetLong(12345,0)   -->   ***.**
-	BYTE SetFiLong(char *fname, long fval, char dec = 1);
+	void SetLong(long fval, char dec = 1);
 	// То же с предварительным поиском поля по имени fname.
 	// Если ОК, возвращает 0. Если поле не найдено возвращает 1.
-	void SetDouble(double fval);
+	BYTE SetFiLong(char *fname, long fval, char dec = 1);
 	// Преобразует fval в текст и переносит его в текущее поле в rec.
 	// Выравнивание вправо. Учитывает число десятичных знаков.
-	BYTE SetFiDouble(char *fname, double fval);
+	void SetDouble(double fval);
 	// То же с предварительным поиском поля по имени fname.
 	// Если ОК, возвращает 0. Если поле не найдено возвращает 1.
-	void SetField(char *s);
+	BYTE SetFiDouble(char *fname, double fval);
 	// Заполняет текущее поле из данного текста, преобразуя его в
 	// зависимости от типа поля.
+	void SetField(char *s);
 
 	void Accum(dbVal *V);
 	BYTE Numeric(void);
 	BYTE *GetByte(BYTE *s);
 	void SetByte(BYTE *fval);
 	BYTE GetMemo(char *file, DWORD *blocknum = NULL);
-	char *GetRight(void);
 	// Создает новую строку и переносит туда текущее поле.
 	// Возвращает указатель на эту строку.
 	// После использования нужно сделать delete.
 	// Возвращает NULL, если текущего поля нет.
-	char *GetRight(char *s);
+	char *GetRight(void);
 	// Переносит текущее поле в строку s.
 	// Возвращает указатель на эту строку.
 	// Возвращает NULL, если текущего поля нет.
-	char *GetRight(char *s, WORD n);
+	char *GetRight(char *s);
 	// Переносит поле с номером n в строку s.
 	// Возвращает указатель на эту строку.
 	// Возвращает NULL, если текущего поля нет.
-	char *GetLeft(char *s);
+	char *GetRight(char *s, WORD n);
 	// Переносит текущее поле в строку s, выравнивает влево (то есть
 	// убирает левые пробелы).
 	// Возвращает указатель на эту строку.
 	// Возвращает NULL, если текущего поля нет.
+	char *GetLeft(char *s);
 	__int64 Get64(void);
 	__int64 GetBinary(void);
-	long GetLong(void);
 	// Преобразует текст в текущем поле в целое число и возвращает его.
 	// Действует сообразно с типом поля. Если тип T (DateTime), возвращает 0.
 	// Если тип I (Integer*4), возвращает правильное значение поля.
@@ -304,17 +303,18 @@ struct dbBase {
 	// десятичная точка игнорируется и учитывается значение dec для поля:
 	// Поле Number 6.2 содержит 123.45 --> GetLong()=12345
 	// Поле Number 6.2 содержит 1234.5 --> GetLong()=123450
-	char *GetDate(char *s);
+	long GetLong(void);
 	// Преобразовывает дату в текущем поле типа D (Date) в формат DateDigit
 	// Результат помещает в s и возвращает указатель на него
-	WORD GetDate(void);
+	char *GetDate(char *s);
 	// Пытается представить текущее поле как дату.
 	// Возвращает дату в формате здешних функций (см. выше).
 	// Возвращает нуль, если попытка не удалась.
-	void GetDT(WORD *d, WORD *t);
+	WORD GetDate(void);
 	// Трактует текущее поле как 8-байтовое DateTime binary (тип T).
 	// Возвращает дату d и время t в формате здешних функций (см. выше).
 	// Возвращает нули, если текущего поля нет.
-	double GetDouble(void);
+	void GetDT(WORD *d, WORD *t);
 	// Преобразует текст в текущем поле в double число и возвращает его.
+	double GetDouble(void);
 };
