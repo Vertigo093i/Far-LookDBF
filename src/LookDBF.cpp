@@ -3147,8 +3147,6 @@ WORD LOOK::GoLeft(void)
 WORD LOOK::GoLast(void)
 {
 	if (!coCurr->Next()) return 0;
-	short x;
-	Column *c;
 	ClearCur(); curX = 0;
 	if (!coLast->Next()) {
 		Xcur = Yes(LineNums) ? Wrec + 2 : 2; coCurr = coFirst;
@@ -3158,16 +3156,17 @@ WORD LOOK::GoLast(void)
 		if (!coTail) return 1;
 		++curX;
 		while (coFirst != coLast&&coTail > 0) {
-			coTail -= c->wid; --curX;
+			coTail -= coFirst->wid; --curX;
 			coFirst = (Column *) coFirst->Next();
 		}
+		// UNDONE Broken column navigation thereafter
 		return 2;
 	}
 	ClearCur(); curX = 0;
 	coFirst = (Column *) coLast->Tail();
-	x = coFirst->wid + (Yes(LineNums) ? Wrec + 2 : 2); if (x >= sw) return 2;
+	short x = coFirst->wid + (Yes(LineNums) ? Wrec + 2 : 2); if (x >= sw) return 2;
 	while (coFirst->Prev()) {
-		c = (Column *) coFirst->Prev();
+		auto c = (Column *) coFirst->Prev();
 		if (x + c->wid >= sw) break;
 		x += c->wid; ++curX; coFirst = c;
 	}
@@ -3177,12 +3176,12 @@ WORD LOOK::GoLast(void)
 
 WORD LOOK::GoRight(void)
 {
-	short x, w;
 	Column *c = (Column *) coCurr->Next();
 	if (!c) return 0;
 	ClearCur();
 	if (coCurr == coLast) {
 		if (c->wid + (Yes(LineNums) ? Wrec + 2 : 2) + coCurr->wid > sw) { coFirst = c; curX = 0; return 2; }
+		short x, w = 0;
 		for (x = 0, c = coCurr; c->Prev();) {
 			w += c->wid; ++x; if (w <= sw) break;
 			c = (Column *) c->Prev();
