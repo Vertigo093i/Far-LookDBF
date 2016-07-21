@@ -10,6 +10,12 @@
 [*] Changes              ³  WMID:009807013498, Z804712443609, R42074294843
 
 ---------------------------------------------------------------------------
+LookDBF 2.8 - 21.07.2016
+---------------------------------------------------------------------------
+[+] Added support for type 'C' (character) fields longer than 255 symbols
+[-] Fixed many buffer overflow bugs related to previous change
+
+---------------------------------------------------------------------------
 LookDBF 2.7 - 25.03.2016
 ---------------------------------------------------------------------------
 [+] x64 build
@@ -29,7 +35,7 @@ LookDBF 2.06 beta. - 18.12.2006
 LookDBF 2.05 beta. - 24.08.2006
 ---------------------------------------------------------------------------
 [+] Showing memo-fields is available now for 31h files too
-    (FoxPro with autoincrement)
+    (FoxPro with auto-increment)
 [-] Uncorrectable console resizing (Alt+F9)
 
 ---------------------------------------------------------------------------
@@ -40,7 +46,7 @@ LookDBF 2.04 beta. - 11.12.2005
     in template too. See help topic "Code Tables".
 [+] PACK function (Ctrl+F2) was added. Remove records with deletion flag.
 [+] Alt+F8 feature (go to given record number) was extended by functions
-    Jump Up or Down by given quantyty of records. +N - down by N records.
+    Jump Up or Down by given quantity of records. +N - down by N records.
     -N - up by N records. N - go to record number N (as usually).
 [+] Nullable field support now available. See Help section _NullFlags.
 [*] Field _NullFlags displayed as hexadecimal now.
@@ -78,7 +84,7 @@ LookDBF 2.01 beta - 20.04.2005
 ---------------------------------------------------------------------------
 LookDBF 2.00 beta - 07.04.2005
 ---------------------------------------------------------------------------
-[+] You may make some plugin parameters permanent now using configuraton
+[+] You may make some plugin parameters permanent now using configuration
     dialog. See Help/Configuration section.
 
 [*] Color settings are in configuration dialog now.
@@ -93,7 +99,7 @@ LookDBF 2.00 beta - 07.04.2005
     search, as in replace string) and in Search by Condition mode.
 
 [+] You may change masking characters in Search, Replace and Configuration
-    dialogs. 
+    dialogs.
 
 [+] Search dialog contain inversion now. You may search records that does not
     contain sample.
@@ -102,7 +108,7 @@ LookDBF 2.00 beta - 07.04.2005
     conditional search process. See Help/Condition search section.
 
 [+] Export dialog was reconstructed. Date and Time formats are added.
-    Button "Cancel" was changed to "Save epty database". You may cancel dialog
+    Button "Cancel" was changed to "Save empty database". You may cancel dialog
     using key ESC or mouse click out of dialog.
 
 [+] If you open empty database in edition mode (option /e) you can add empty
@@ -130,7 +136,7 @@ LookDBF 1.07 beta - 28.06.2004
 
 [+] Your own mask character for search and replace masking is available now.
 
-[+] Replace is prohibided for fields types D and T if searching and replacing
+[+] Replace is prohibited for fields types D and T if searching and replacing
     strings have different length.
 
 [-] Remove bug in marking inversion (Gray *) in "Selected Only" mode.
@@ -139,7 +145,7 @@ LookDBF 1.07 beta - 28.06.2004
 
 [+] Export execution time now showed after it.
 
-[-] Trailing blanks are rewoved for current field edition.
+[-] Trailing blanks are removed for current field edition.
 
 ---------------------------------------------------------------------------
 LookDBF 1.06 beta - 05.06.2004
@@ -160,7 +166,7 @@ LookDBF 1.05 beta - 27.05.2004
 
 [*] Source text was inspected. All of input-output and memory control
     functions are changed to standard Win32 API functions. LookDBF now create
-    its own memory heap, and destory it before closing.
+    its own memory heap, and destroy it before closing.
 
 ---------------------------------------------------------------------------
 LookDBF 1.04 beta - 20.05.2004
@@ -192,7 +198,7 @@ LookDBF 1.04 beta - 20.05.2004
 
 [+] New key  (Ctrl*) is added for NON-actual records marked.
 
-[+] DBF-file import is available now. (Key Shift+F9). See Help for detailes.
+[+] DBF-file import is available now. (Key Shift+F9). See Help for details.
 
 [+] During export sorting is available now. You can use 3 sorting keys
     maximum. Sorry, sorting does not fast.
@@ -203,13 +209,13 @@ LookDBF 1.04 beta - 20.05.2004
 ---------------------------------------------------------------------------
 LookDBF 1.03 beta - 26.07.2003
 ---------------------------------------------------------------------------
-[*] Status line rebuilded (see Help).
+[*] Status line rebuilt (see Help).
 
 [-] Keys Ctrl+PgDn ¨ Ctrl+End did not work properly. (It called "algorithm
-    improwement..." :-)))
+    improvement..." :-)))
 
 [+] Memo-field of Visual FoxPro format added. (DBF-file type 30) and memo-file
-    extention FPT.
+    extension FPT.
 
 [+] Option /n added into command line. Show records number.
 
@@ -250,15 +256,15 @@ LookDBF 1.02 beta - 20.07.2003
 [*] Changed Date and Time edit method. Mask is used now.
 
 [+] Memo-field of FoxPro format added. (DBF-file type F5) and memo-file
-    extention FPT. ( A lot of thanks to Sergey Kovalev for good information,
+    extension FPT. ( A lot of thanks to Sergey Kovalev for good information,
     examples and sources).
 
 [*] When Memo-field is viewing memo-field name and record number are shown
     in viewer status line.
 
-[-] Correct buggs with mouse navigation.
+[-] Correct bugs with mouse navigation.
 
-[-] Correct buggs with navigation in "Marked Only" mode.
+[-] Correct bugs with navigation in "Marked Only" mode.
 
 [*] String search dialog changed.
 
@@ -269,7 +275,7 @@ LookDBF 1.02 beta - 20.07.2003
 ---------------------------------------------------------------------------
 LookDBF 1.01 beta - 07.07.2003
 ---------------------------------------------------------------------------
-[!] Edition functions are prohibided by default.
+[!] Edition functions are prohibited by default.
 
 [+] New option in command line: /e - edition functions permission.
 
@@ -278,8 +284,8 @@ LookDBF 1.01 beta - 07.07.2003
 [+] Sign of edition prohibition "#" added to status line.
 
 [+] Read-only files viewing is possible now. In this case edition is
-    strongly prohibided.
-[*] Command line analyse was rewritten. Probably it became better (see Help).
+    strongly prohibited.
+[*] Command line analyze was rewritten. Probably it became better (see Help).
 
 [*] Copy to clipboard by Ctrl+C too. Trailing blanks are truncated.
 
@@ -291,7 +297,7 @@ LookDBF 1.01 beta - 07.07.2003
 
 [+] Memo-field viewing added. Only 2 formats of memo are recognized: dBaseIII+
     (DBF-file type 83) and dBaseIV (DBF-file type 8b).
-    Unfortunantely I have not any information about other formats of
+    Unfortunately I have not any information about other formats of
     memo-files. If somebody have this information, please, send me it or
     internet link to it.
 
@@ -307,7 +313,7 @@ LookDBF 1.01 beta - 07.07.2003
 
 [+] New keys AltÄ and AltÄ were added for wide fields scrollong.
 
-[*] Colors highliting of active cell have true field length width excluding
+[*] Colors highlighting of active cell have true field length width excluding
     binary fields (such as I, Y etc.)
 
 [+] ENTER in fields list (F2) make active this field's column.

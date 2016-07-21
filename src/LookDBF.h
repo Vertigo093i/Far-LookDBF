@@ -18,7 +18,7 @@
 #define WholeWords    0x00001000 // Whole words only searching
 #define FindReplace   0x00002000 // Search & replace mode
 #define ConfReplace   0x00004000 // Replace Confirmation
-#define AutoSave      0x00008000 // Tepmlate Autosave
+#define AutoSave      0x00008000 // Template auto save
 #define ExpEmpty      0x00010000 // Export empty file
 
 enum {
@@ -52,7 +52,7 @@ enum {
 	mImpTitle, mImpFileName,
 	//----------------------- Others
 	mYes, mNo, mAll, mColIns, mSum, mColName, mEditTitle, mTempFile, mGoTo, mTemplate,
-	//----------------------- Html-taggs
+	//----------------------- HTML-tags
 	mTabS, mTabF, mTabRowS, mTabRowF, mTabCellS, mTabCellF, mTabSpace
 };
 //===========================================================================
@@ -81,7 +81,7 @@ struct FindData {
 	short Len;        // Searching Sample Length
 	short LenF;       // Found String Length
 	short nMM;        // Number of MultyMask characters in sample
-	short nMMr;       // Number of MultyMask characters in replase substring
+	short nMMr;       // Number of MultyMask characters in replace substring
 	char Mask[2];     // Masking Characters
 	char FD[256];     // Searching Text OEM coding
 	char FU[256];     // Searching Text coding ready for compare
@@ -140,11 +140,11 @@ struct LOOK {
 	WORD   *S;        // Array of record sorted marks
 	dbBase db;        // Data Base structure
 
-	short LookOnly;   // Prohibit edit, append and detete functions
+	short LookOnly;   // Prohibit edit, append and delete functions
 	short MarkOnly;   // On/Off marked records only mode of displaying
 	DWORD MarkNum;    // Number of marked records
 	DWORD MarkMax;    // Maximum number of marked records
-	short sw, sh;      // Screen width and height-1
+	WORD sw, sh;      // Screen width and height-1
 	BYTE  at[24];     // Colors array
 	short Wrec;       // Width of current line number showing
 	short Wcol;       // Width of current column number showing
@@ -308,6 +308,6 @@ struct LOOK {
 	void DelTemplate(void);
 	int  TableSelect(void);
 	int  TableSet(int nt);
-	void ToOem(TCHAR *src, TCHAR *dst = NULL);
-	void ToAlt(TCHAR *src, TCHAR *dst = NULL);
+	void ToOem(char *src, char *dst = NULL);
+	void ToAlt(char *src, char *dst = NULL);
 };

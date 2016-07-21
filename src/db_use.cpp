@@ -15,7 +15,7 @@ void *operator new[](size_t size) {return ::operator new(size); }
 void *operator new(size_t size, void *p) { return p; }
 void operator delete[](void *ptr) {::operator delete(ptr); }
 
-//--------- Двухсвязный список объектов ---------------
+//--------- Двусвязный список объектов ---------------
 
 Link *Link::Head(void)
 {
@@ -176,12 +176,10 @@ char *i64_a(char *s, __int64 val, int mins, int dec)
 
 __int64 ah_i64(char *s, __int64 def)
 {
-	long z;
-	char *c;
 	__int64 rez = 0;
-	for (c = s; *c; c++) {
+	for (auto c = s; *c; c++) {
 		if (*c < '0') return def;
-		z = *c - '0';  if (z < 10) goto STORE;
+		auto z = *c - '0';  if (z < 10) goto STORE;
 		if (*c < 'A') return def;
 		z = *c - 'A' + 10;  if (z < 16) goto STORE;
 		if (*c < 'a') return def;
@@ -621,11 +619,8 @@ void dbBase::OpenMemo(const char *file, const char *mext)
 
 BYTE dbBase::Open(char *file, BYTE ronly)
 {
-	WORD k, n, rl;
-	int lh;
-	BYTE ret, ind, msk;
 	DWORD nbr;
-	ret = 0;
+	BYTE ret = 0;
 	if (f != INVALID_HANDLE_VALUE) return 3;
 	if (!ronly) {
 		f = CreateFile(file, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL,
@@ -640,8 +635,8 @@ BYTE dbBase::Open(char *file, BYTE ronly)
 	}
 	if (!ReadFile(f, &dbH, 32, &nbr, NULL) || nbr < 32) return 2;
 	if (dbH.reclen == 0 || dbH.start <= 64 || dbH.nrec < 0) return 2;
-	dbField *h;
-	rl = 1; h = NULL, lh = 0;
+	Link *h = NULL;
+	WORD rl = 1; int lh = 0;
 	for (nfil = 0;;) {
 		lh += 32;
 		if (lh + 1 > dbH.start) break;
@@ -654,19 +649,19 @@ DB_ERROR:
 		if (d->name[0] == 0x0d) { delete d; break; }
 		if (nbr < 32) goto DB_ERROR;
 		d->loc = rl;
-		rl += d->filen;
-		h = (dbField*) (h->Add(d));
+		rl += d->cfilen;
+		h = h->Add(d);
 		nfil++;
 	}
 	if (rl > dbH.reclen) return 2;
-	k = 0;
+	WORD k = 0;
 	while (rl < dbH.reclen) {
-		n = dbH.reclen - rl; if (n > 255)n = 255;
+		WORD n = dbH.reclen - rl; if (n > 255)n = 255;
 		auto d = new dbField; ZeroMemory(d, sizeof(dbField));
 		FSF.sprintf(d->name, "#%d#", ++k);
 		d->type = '#'; d->filen = n;
-		rl += d->filen;
-		h = (dbField*) (h->Add(d));
+		rl += n;
+		h = h->Add(d);
 		nfil++;
 	}
 	cf = dbF = (dbField*) (h->Head());
@@ -684,7 +679,7 @@ DB_ERROR:
 	Hext[0] = 0x0d;
 	//-------- _NullFlags field for nullable and variable length fields
 	//-------- recognized and set if it present
-	ind = 0; msk = 1; Nflg = NULL;
+	BYTE ind = 0; BYTE msk = 1; Nflg = NULL;
 	for (auto d = dbF; d; d = (dbField*) (d->Next())) {
 		if ((d->spare[0] & 0x05) != 5) continue;
 		if (MyCmp(d->name, "_NullFlags") != 10) continue;
@@ -732,7 +727,7 @@ BYTE dbBase::Create(char *file, BYTE t, dbBase *dc)
 	for (d = dbF; d; d = (dbField*) (d->Next())) {
 		d->loc = dbH.reclen;
 		if ((d->spare[0] & 0x05) == 5)nbr = dbH.reclen;
-		dbH.reclen += d->filen;
+		dbH.reclen += d->cfilen;
 		dbH.start += 32;
 	}
 	if (dbH.reclen == 1)return 3;
@@ -929,7 +924,7 @@ dbField *dbBase::FiNum(WORD n)
 //===========================================================================
 WORD dbBase::FiWidth(void)
 {
-	WORD i = cf->filen;
+	WORD i = cf->cfilen;
 	switch (cf->type) {
 		//  case 'D': if(fmtD)i=DTw(fmtD); else i=10; break;
 	case 'D': i = DTw(fmtD); break;
@@ -948,9 +943,9 @@ WORD dbBase::FiWidth(void)
 
 char *dbBase::FiType(char *s)
 {
-	char *c = "%c%3u.%u  %s";
+	const char *c = "%c%3u.%u  %s";
 	switch (cf->type) {
-	case 'C': FSF.sprintf(s, c, 'C', cf->filen, cf->dec, "Character"); break;
+	case 'C': FSF.sprintf(s, "%c%5u  %s", 'C', cf->cfilen, "Character"); break;
 	case 'N': FSF.sprintf(s, c, 'N', cf->filen, cf->dec, "Number"); break;
 	case 'D': FSF.sprintf(s, c, 'D', cf->filen, cf->dec, "Date"); break;
 	case 'L': FSF.sprintf(s, c, 'L', cf->filen, cf->dec, "Logical"); break;
@@ -1000,11 +995,11 @@ BYTE dbBase::FiNotFull(void)
 
 WORD dbBase::FiDisp(char *s, BYTE nll)
 {
-	BYTE *c, fle, n;
+	WORD n;
 	if (!cf)return 0;
 	if (nll && FiNull()) { lstrcpy(s, "Null"); return 4; }
-	c = rec + cf->loc;
-	fle = cf->filen;
+	auto c = rec + cf->loc;
+	auto fle = cf->cfilen;
 	switch (cf->type) {
 	case 'T': // DateTime
 		if (fle == 8) { // Binary format
@@ -1175,15 +1170,15 @@ __int64 dbBase::GetBinary(void)
 
 BYTE *dbBase::GetByte(BYTE *s)
 {
-	CopyMemory(s, rec + cf->loc, cf->filen);
-	s[cf->filen] = 0;
+	CopyMemory(s, rec + cf->loc, cf->cfilen);
+	s[cf->cfilen] = 0;
 	return s;
 }
 //-----------------------------------
 
 void dbBase::SetByte(BYTE *s)
 {
-	CopyMemory(rec + cf->loc, s, cf->filen);
+	CopyMemory(rec + cf->loc, s, cf->cfilen);
 }
 //-----------------------------------
 
@@ -1197,7 +1192,7 @@ double dbBase::GetDouble(void)
 	sign = 1; j = 0;
 	c = rec + cf->loc;
 	q = 0;
-	for (i = 0; i < cf->filen; c++, i++) {
+	for (i = 0; i < cf->cfilen; c++, i++) {
 		if ((*c == ' ') || (*c == '+')) { if (j)break; continue; }
 		if (*c == '-') { if (j)break; sign = -1; continue; }
 		if (*c == '.') { if (j)break; j = 10; continue; }
@@ -1290,12 +1285,12 @@ BYTE dbBase::ReWrite(void)
 void dbBase::SetLeft(char *fval)
 {
 	WORD i;
-	for (i = 0; i < cf->filen; i++) {
+	for (i = 0; i < cf->cfilen; i++) {
 		if (!fval[i]) break;
 		rec[cf->loc + i] = fval[i];
 	}
 	if (cf->mskV) {
-		if (i < cf->filen) { rec[cf->loc + cf->filen - 1] = i; SetNotFull(); }
+		if (i < cf->cfilen) { rec[cf->loc + cf->cfilen - 1] = i; SetNotFull(); }
 		else SetFull();
 	}
 }
@@ -1307,7 +1302,7 @@ void dbBase::SetRight(char *fval)
 	if (!l) return;
 	l--;
 	int i;
-	for (i = cf->loc + cf->filen - 1; i >= cf->loc&&l >= 0; i--, l--) rec[i] = fval[l];
+	for (i = cf->loc + cf->cfilen - 1; i >= cf->loc&&l >= 0; i--, l--) rec[i] = fval[l];
 }
 //-------------------------------
 
@@ -1318,8 +1313,8 @@ void dbBase::SetEmpty(void)
 	if (cf->type == 'M' || cf->type == '0' || cf->type == 'I'
 		|| cf->type == 'B' || cf->type == 'Y' || cf->type == 'G')filler = 0;
 	if (cf->type == 'T'&&cf->filen == 8)filler = 0;
-	for (WORD i = 0; i < cf->filen; i++) rec[cf->loc + i] = filler;
-	if (cf->mskV) { rec[cf->loc + cf->filen - 1] = 0; SetNotFull(); }
+	for (WORD i = 0; i < cf->cfilen; i++) rec[cf->loc + i] = filler;
+	if (cf->mskV) { rec[cf->loc + cf->cfilen - 1] = 0; SetNotFull(); }
 }
 //-------------------------------
 
@@ -1330,7 +1325,7 @@ BYTE dbBase::IsEmpty(void)
 	if (cf->type == 'M' || cf->type == '0' || cf->type == 'I'
 		|| cf->type == 'B' || cf->type == 'Y' || cf->type == 'G')filler = 0;
 	if (cf->type == 'T'&&cf->filen == 8)filler = 0;
-	for (WORD i = 0; i < cf->filen; i++) if (rec[cf->loc + i] != filler) return 0;
+	for (WORD i = 0; i < cf->cfilen; i++) if (rec[cf->loc + i] != filler) return 0;
 	return 1;
 }
 //-------------------------------

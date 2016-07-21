@@ -114,7 +114,7 @@ bool LOOK::YesAlphaNum(BYTE c)
 }
 //===========================================================================
 
-void LOOK::ToOem(TCHAR *src, TCHAR *dst)
+void LOOK::ToOem(char *src, char *dst)
 {
 	if (!dst) dst = src;
 	if (!ChaTa) { CharToOem(src, dst); return; }
@@ -123,7 +123,7 @@ void LOOK::ToOem(TCHAR *src, TCHAR *dst)
 }
 //===========================================================================
 
-void LOOK::ToAlt(TCHAR *src, TCHAR *dst)
+void LOOK::ToAlt(char *src, char *dst)
 {
 	if (!dst) dst = src;
 	if (!ChaTa) { OemToChar(src, dst); return; }
@@ -188,9 +188,10 @@ void LOOK::ShowMemo(short id)
 	else { y1 = 0; y2--; }
 	char title[64], nafi[32];
 	if (Yes(WinCode)) ToOem(coCurr->name, nafi);
+	else lstrcpy(nafi, coCurr->name);
 	FSF.sprintf(title, "%sÄ%luÄ%lu", nafi, recV[curY], nb);
 	if (id) Info.Editor(fname, title, 0, y1, -1, y2,
-						VF_DISABLEHISTORY | VF_DELETEONLYFILEONCLOSE, 0, 1);
+						EF_DISABLEHISTORY | EF_DELETEONLYFILEONCLOSE, 0, 1);
 	else Info.Viewer(fname, title, 0, y1, -1, y2,
 					 VF_DISABLEHISTORY | VF_DELETEONLYFILEONCLOSE);
 }
@@ -293,14 +294,15 @@ void LOOK::ShowExpMsg(DWORD msec)
 
 void LOOK::InitColumns(void)
 {
-	WORD i, n;
 	C[0].Clear();
-	for (i = 0; i < db.nfil; i++) {
+	FSF.itoa(db.dbH.nrec, C[0].name, 10);
+	short maxWidth = sw - (Yes(LineNums) ? lstrlen(C[0].name) + 1 : 0) - 2;
+	for (WORD i = 0; i < db.nfil; i++) {
 		db.FiNum(i);  C[i].finum = i;
 		lstrcpy(C[i].name, db.cf->name);
 		C[i].wid = db.FiWidth() + 1;
-		n = lstrlen(C[i].name) + 2; if (C[i].wid < n) C[i].wid = n;
-		n = sw - 3; if (C[i].wid > n)C[i].wid = n;
+		short n = lstrlen(C[i].name) + 2; if (C[i].wid < n) C[i].wid = n;
+		if (C[i].wid > maxWidth) C[i].wid = maxWidth;
 		if (i)C[i - 1].After(C + i);
 	}
 	Hid = coLast = NULL; coCurr = coFirst = C;
@@ -759,6 +761,7 @@ void LOOK::EditHeader(void)
 	++i; //2
 	di[i].Type = DI_FIXEDIT; di[i].X1 = 36; di[i].X2 = 37; di[i].Y1 = 2;
 	FSF.sprintf(di[i].Data, "%02X", db.dbH.type); di[i].Focus = true;
+	di[i].Flags = DIF_MASKEDIT; di[i].Mask = "HH";
 	++i; //3
 	di[i].Type = DI_TEXT; di[i].X1 = 6; di[i].Y1 = 3;
 	lstrcpy(di[i].Data, GetMsg(mLastUpdate));
@@ -772,6 +775,7 @@ void LOOK::EditHeader(void)
 	++i; //6
 	di[i].Type = DI_FIXEDIT; di[i].X1 = 36; di[i].X2 = 37; di[i].Y1 = 4;
 	FSF.sprintf(di[i].Data, "%02X", db.dbH.ind);
+	di[i].Flags = DIF_MASKEDIT; di[i].Mask = "HH";
 	++i; //7
 	di[i].Type = DI_TEXT; di[i].Y1 = 5; di[i].Flags = DIF_SEPARATOR;
 	++i; //8
@@ -827,8 +831,20 @@ WORD LOOK::EditField(BYTE nll)
 	if (db.cf->type == 'G' || db.cf->type == 'P' ||
 		db.cf->type == 'M' || db.cf->type == '0') return 1;
 	db.fmtD = fmtD; db.fmtT = fmtT;
-	db.FiDispE(di[0].Data);
-	if (Yes(WinCode) && db.FiChar())ToOem(di[0].Data);
+	WORD w = db.FiWidth();
+	if (w < 512) // sizeof(FarDialogItem::Data)
+	{
+		db.FiDispE(di[0].Data);
+		if (Yes(WinCode) && db.FiChar()) ToOem(di[0].Data);
+	}
+	else
+	{
+		di[0].Flags |= DIF_VAREDIT;
+		di[0].Ptr.PtrLength = w + 1;
+		di[0].Ptr.PtrData = new char[di[0].Ptr.PtrLength];
+		db.FiDispE(di[0].Ptr.PtrData);
+		if (Yes(WinCode) && db.FiChar()) ToOem(di[0].Ptr.PtrData);
+	}
 	switch (db.cf->type) {
 	case 'T': di[0].Type = DI_FIXEDIT; di[0].Mask = T_Mask;
 		di[0].Flags = DIF_MASKEDIT; break;
@@ -843,8 +859,10 @@ WORD LOOK::EditField(BYTE nll)
 					  DiField, 0) < 0) {
 		db.fmtD = fmtDV; db.fmtT = fmtTV; return 1;
 	}
-	if (Yes(WinCode) && db.FiChar())ToAlt(di[0].Data);
-	db.SetField(di[0].Data);
+	auto r = (di[0].Flags & DIF_VAREDIT) != 0 && di[0].Ptr.PtrData ? di[0].Ptr.PtrData : di[0].Data;
+	if (Yes(WinCode) && db.FiChar()) ToAlt(r);
+	db.SetField(r);
+	if ((di[0].Flags & DIF_VAREDIT) != 0 && di[0].Ptr.PtrData) delete di[0].Ptr.PtrData;
 	db.fmtD = fmtDV; db.fmtT = fmtTV;
 REFRESH:
 	if (db.ReWrite()) { ShowError(2); return 1; }
@@ -961,7 +979,7 @@ void LOOK::ShowCur(void)
 
 void LOOK::ShowPage(void)
 {
-	char s[512];
+	char s[MAX_DBFIELD_LENGTH];
 	WORD i, j, x;
 	DWORD rn;
 	Column *c;
@@ -1464,8 +1482,8 @@ void LOOK::FieldValue(WORD fnum, CondValue *val)
 	}
 	break;
 	default:
-		BYTE_COPY:  CopyMemory(b, c, db.cf->filen);
-					b[db.cf->filen] = 0;
+		BYTE_COPY:  CopyMemory(b, c, db.cf->cfilen);
+					b[db.cf->cfilen] = 0;
 	}
 	if (db.cf->type == 'N' || db.cf->type == 'F')val->i64 = a_i64((char *) b, 0, db.cf->dec);
 }
@@ -1498,7 +1516,7 @@ short LOOK::FieldCompare(short fnum, CondValue *v1, CondValue *v2)
 		return 2;
 BYTE_CMP:
 	default:
-		for (i = 0; i<db.cf->filen; i++) {
+		for (i = 0; i<db.cf->cfilen; i++) {
 			if (v1->bt[i] > v2->bt[i]) return 0;
 			if (v1->bt[i] < v2->bt[i]) return 1;
 		}
@@ -1509,17 +1527,14 @@ BYTE_CMP:
 
 WORD LOOK::ExpTxt(void)
 {
-	char s[384], r[512];
-	HANDLE ef;
-	Column *c;
+	char s[MAX_DBFIELD_LENGTH], r[MAX_DBFIELD_LENGTH];
 	short w, k;
-	BYTE sep;
 
 	lstrcpy(s, Exp.File); lstrcat(s, ".txt");
-	ef = CreateFile(s, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
-					FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+	HANDLE ef = CreateFile(s, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 	if (ef == INVALID_HANDLE_VALUE) { ShowError(21); return 1; }
-	sep = Yes(ExpSeparator); s[0] = Exp.Sep[0]; s[1] = Exp.Sep[1]; s[2] = 0;
+	BYTE sep = Yes(ExpSeparator);
+	s[0] = Exp.Sep[0]; s[1] = Exp.Sep[1]; s[2] = 0;
 	db.fmtD = fmtDE; db.fmtT = fmtTE;
 	if (sep) {
 		if (s[0]) {
@@ -1530,7 +1545,7 @@ WORD LOOK::ExpTxt(void)
 	}
 	if (sep == 0xb3 && (Exp.code == 1 || (Exp.code == 0 && Yes(WinCode)))) sep = 0xa6;
 	if (Yes(ExpHeads)) {
-		for (c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
+		for (auto c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
 			lstrcpy(s, c->name); w = c->wid - 1; k = w;
 			db.FiNum(c->finum); if (db.cf->type == 'D') k = DTw(db.fmtD);
 			if (db.cf->type == 'T') k = DTw(db.fmtT); if (k > w) w = k;
@@ -1545,7 +1560,7 @@ WORD LOOK::ExpTxt(void)
 	}
 	if (Yes(ExpEmpty)) goto FINISH;
 	while ((this->*ExpRec)()) {
-		for (c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
+		for (auto c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
 			db.FiNum(c->finum); k = db.FiDisp(s); w = c->wid - 1;
 			if (db.FiChar()) {
 				if (Exp.code == 1)ToAlt(s); else if (Exp.code == 2) ToOem(s);
@@ -1578,14 +1593,11 @@ BAD_WRITE:
 
 WORD LOOK::ExpHtm(void)
 {
-	char s[384], r[512];
-	HANDLE ef;
-	Column *c;
+	char s[MAX_DBFIELD_LENGTH], r[MAX_DBFIELD_LENGTH];
 	const char *rs, *rf, *cs, *cf, *fi, *fs, *fsn, *fss;
 
 	lstrcpy(s, Exp.File); lstrcat(s, ".htm");
-	ef = CreateFile(s, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
-					FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+	HANDLE ef = CreateFile(s, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 	if (ef == INVALID_HANDLE_VALUE) { ShowError(21); return 1; }
 	db.fmtD = fmtDE; db.fmtT = fmtTE;
 	rs = GetMsg(mTabRowS); rf = GetMsg(mTabRowF);
@@ -1596,7 +1608,7 @@ WORD LOOK::ExpHtm(void)
 	if (Yes(ExpHeads)) {
 		FSF.sprintf(r, fs, rs);
 		if (MyWrite(ef, r)) goto BAD_WRITE;
-		for (c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
+		for (auto c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
 			if (!c->name[0]) FSF.sprintf(r, fss, cs, fi, cf);
 			else {
 				lstrcpy(s, c->name); FSF.Trim(s);
@@ -1613,7 +1625,7 @@ WORD LOOK::ExpHtm(void)
 	while ((this->*ExpRec)()) {
 		FSF.sprintf(r, fs, rs);
 		if (MyWrite(ef, r)) goto BAD_WRITE;
-		for (c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
+		for (auto c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
 			db.FiNum(c->finum); db.FiDisp(s); FSF.Trim(s);
 			if (!s[0]) FSF.sprintf(r, fss, cs, fi, cf);
 			else {
@@ -1644,22 +1656,19 @@ BAD_WRITE:
 
 WORD LOOK::ExpDbf(void)
 {
-	char s[384];
-	Column *c;
+	char s[MAX_PATH];
 	dbBase a;
-	WORD n;
-	BYTE sep, nn;
-	sep = db.dbH.type; s[0] = Exp.Type[0]; s[1] = Exp.Type[1]; s[2] = 0;
+	BYTE sep = db.dbH.type; s[0] = Exp.Type[0]; s[1] = Exp.Type[1]; s[2] = 0;
 	if (Yes(ExpFileType) && s[0] && s[1]) sep = ah_i64(s, sep);
 
-	for (c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
+	for (auto c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
 		db.FiNum(c->finum);
 		if ((db.cf->spare[0] & 0x05) == 5 && db.cf->type == '0') continue;
 		lstrcpy(s, c->name); s[10] = 0;
 		if (Exp.code == 1)ToAlt(s); else if (Exp.code == 2) ToOem(s);
 		a.AddF(db.cf, s);
 	}
-	nn = a.AddNull();
+	BYTE nn = a.AddNull();
 	CopyMemory(a.dbH.spare1, db.dbH.spare1, 20);
 	lstrcpy(s, Exp.File); lstrcat(s, ".dbf");
 	if (a.Create(s, sep)) { ShowError(1); return 1; }
@@ -1667,15 +1676,18 @@ WORD LOOK::ExpDbf(void)
 	while ((this->*ExpRec)()) {
 		a.rec[0] = db.rec[0];
 		if (a.Nflg && nn) ZeroMemory(a.Nflg, nn);
+		WORD n;
+		Column *c;
+		BYTE b[MAX_DBFIELD_LENGTH];
 		for (n = 0, c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
 			db.FiNum(c->finum);
 			if ((db.cf->spare[0] & 0x05) == 5 && db.cf->type == '0') continue;
-			a.FiNum(n); ++n; db.GetByte((BYTE*) s);
+			a.FiNum(n); ++n; db.GetByte(b);
 			if (db.FiChar()) {
-				if (Exp.code == 1)ToAlt(s);
-				else if (Exp.code == 2) ToOem(s);
+				if (Exp.code == 1)ToAlt((char *) b);
+				else if (Exp.code == 2) ToOem((char *) b);
 			}
-			a.SetByte((BYTE*) s);
+			a.SetByte(b);
 			if (db.FiNull())a.SetNull();
 			if (db.FiNotFull())a.SetNotFull();
 		}
@@ -1811,7 +1823,7 @@ WORD LOOK::Import(void)
 			if (!db.cf->spare[13]) continue;
 			a.FiNum(db.cf->spare[13] - 1);
 			ar = a.rec + a.cf->loc; br = db.rec + db.cf->loc;
-			for (k = 0; k < a.cf->filen; k++)br[k] = ar[k];
+			for (k = 0; k < a.cf->cfilen; k++)br[k] = ar[k];
 		}
 		db.Write();
 		if (a.NextRec()) break;
@@ -2105,7 +2117,7 @@ void LOOK::CondVal(WORD n)
 	default:
 		if (Yes(WinCode) && db.FiChar())ToAlt(s, b);
 		else lstrcpy(b, s);
-		b[db.cf->filen] = 0;
+		b[db.cf->cfilen] = 0;
 	}
 }
 //===========================================================================
@@ -2260,30 +2272,29 @@ bool LOOK::CondCheck(short n, DWORD fi1, DWORD fi2)
 
 bool LOOK::CondCompare(short n)
 {
-	BYTE *s, b[256];
-	short i;
 	db.FiNum(Cond.Field[n]);
-	s = db.rec + db.cf->loc;
+	auto s = db.rec + db.cf->loc;
 	switch (db.cf->type) {
 	case 'T': // DateTime
 		if (db.cf->filen == 8) { // Binary format
 			union { DWORD w; BYTE c[4]; } u, v;
-			for (i = 0; i < 4; i++)u.c[i] = s[i];
-			for (i = 4; i < 8; i++)v.c[i - 4] = s[i];
+			for (BYTE i = 0; i < 4; i++) u.c[i] = s[i];
+			for (BYTE i = 4; i < 8; i++) v.c[i - 4] = s[i];
 			return CondCheck(n, u.w, v.w);
 		}
 		break;
 	case 'Y': // Currency
 		union { __int64 w; BYTE c[8]; } cy;
-		for (i = 0; i < 8; i++)cy.c[i] = s[i];
+		for (BYTE i = 0; i < 8; i++) cy.c[i] = s[i];
 		return CondCheck(n, cy.w);
 	case 'N': case 'F': // Number, Float
-		for (i = 0; i < db.cf->filen; i++)b[i] = s[i];
+		BYTE b[256];
+		CopyMemory(b, s, db.cf->filen);
 		b[db.cf->filen] = 0;
 		return CondCheck(n, a_i64((char *) b, 0, db.cf->dec));
 	case 'B': // Double
 		union { double w; BYTE c[8]; } uu;
-		for (i = 0; i < 8; i++)uu.c[i] = s[i];
+		for (BYTE i = 0; i < 8; i++) uu.c[i] = s[i];
 		return CondCheck(n, uu.w);
 	case '0': // System
 	case 'G': // General
@@ -2292,10 +2303,11 @@ bool LOOK::CondCompare(short n)
 		return false;
 	case 'I': // Integer
 		union { __int32 w; BYTE c[4]; } uuu;
-		for (i = 0; i < 4; i++)uuu.c[i] = s[i];
+		for (BYTE i = 0; i < 4; i++) uuu.c[i] = s[i];
 		return CondCheck(n, __int64(uuu.w));
 	}
-	i = db.cf->filen; if (i > 255)i = 255;
+	BYTE b[MAX_DBFIELD_LENGTH];
+	auto i = db.cf->cfilen; if (i > sizeof(b)) i = sizeof(b);
 	CopyMemory(b, s, i); b[i] = 0;
 	if (!i)return CondCheck(n, b);
 	while (--i)if (b[i] == 0 || b[i] == ' ')b[i] = 0;
@@ -2577,15 +2589,15 @@ Column *LOOK::FindFin(short fin)
 
 short LOOK::FindCompare(WORD fn)
 {
-	char c[512];
+	char c[MAX_DBFIELD_LENGTH];
 	short i, j, L, sBack, lBack, ret;
-	bool NoWord, YesWholeWords;
 	db.FiNum(fn); L = db.FiDispE(c);
 	ret = 1; if (Yes(FindInvert)) ret = 0;
 	if (Find.Len - Find.nMM > L) goto NOT_FOUND;
 	if (No(FindCaseSens)) if (Yes(WinCode)) CharUpperBuff(c, lstrlen(c)); else FSF.LStrupr(c);
-	L -= (Find.Len - Find.nMM) - 1; NoWord = false;
-	YesWholeWords = Yes(WholeWords);
+	L -= (Find.Len - Find.nMM) - 1;
+	bool NoWord = false;
+	bool YesWholeWords = Yes(WholeWords);
 	j = 0;
 	if (Yes(FindReplace)) {
 		j = Find.Pos + Find.Step;
@@ -2650,20 +2662,21 @@ YES_FOUND:
 
 short LOOK::ReplaceStr(char *cc)
 {
-	char *c, R[512];
-	WORD i, j;
-	db.FiDispE(cc); c = cc + Find.Pos; i = lstrlen(c);
-	j = lstrlen(Find.RU) - Find.nMMr;
+	db.FiDispE(cc);
+	auto c = cc + Find.Pos;
+	WORD i = lstrlen(c);
+	WORD j = lstrlen(Find.RU) - Find.nMMr;
 	if (!j) {
 		if (Find.nMMr) return Find.LenF;
 		MoveMemory(c, c + Find.LenF, i - Find.LenF + 1);
 		return 0;
 	}
+	char R[512];
 	lstrcpy(R, Find.RU);
 	if (Find.nMMr) {
-		WORD k, *n;
+		WORD k;
 		char *r = Find.RU;
-		n = new WORD[Find.nMMr];
+		WORD *n = new WORD[Find.nMMr];
 		if (j < Find.LenF) {
 			j = Find.LenF - j;
 			while (j)for (k = 0; k < Find.nMMr && j; k++, j--)n[k]++;
@@ -2691,7 +2704,7 @@ short LOOK::ReplaceStr(char *cc)
 
 short LOOK::Replace()
 {
-	char cc[512];
+	char cc[MAX_DBFIELD_LENGTH];
 	short j;
 	j = ReplaceStr(cc);
 	db.SetField(cc);
@@ -2742,9 +2755,7 @@ bool LOOK::NotRepl(DWORD rn, short ma = 3)
 
 DWORD LOOK::FindNext(short *f, short ma = 3)
 {
-	DWORD rn;
-	Column *c;
-	rn = recV[curY];
+	DWORD rn = recV[curY];
 	if ((Yes(FindAllFields) && coCurr->Next()) || Yes(FindReplace))--rn;
 	for (;;) {
 		if (++rn > db.dbH.nrec) return 0;
@@ -2755,7 +2766,7 @@ DWORD LOOK::FindNext(short *f, short ma = 3)
 		else if (NotRepl(rn, ma)) continue;
 		if (db.Read(rn)) { ShowError(2); return 0; }
 		if (Yes(FindAllFields)) {
-			c = (Column *) coFirst->Head();
+			auto c = (Column *) coFirst->Head();
 			if (rn == recV[curY]) c = Yes(FindReplace) ? coCurr : (Column *) coCurr->Next();
 			for (; c; c = (Column *) c->Next()) if (FindCompare(c->finum)) break;
 			if (!c) continue;
@@ -2840,7 +2851,7 @@ struct EditDialog {
 	WORD wText;        // Maximum width of text line
 	WORD wEdit;        // Maximum width of edit line
 	WORD width;        // Width of dialog
-	short iOk;         // Index of "Ok" item
+	short iOk;         // Index of "OK" item
 	short iAdd;        // Index of "Add" item
 	short iNext;       // Index of "Go to next dialog" item
 	short iPrev;       // Index of "Go to previous dialog" item
@@ -2848,9 +2859,18 @@ struct EditDialog {
 	WORD yLine;        // Y for next init line
 	FarDialogItem *di; // Dialog items array
 
-	~EditDialog() { if (di) { delete[] di; di = NULL; } };
+	~EditDialog() {
+		if (di) {
+			for (WORD i = 0; i < nItems; i++) {
+				auto item = di[i];
+				if (item.Type == DI_EDIT && (item.Flags & DIF_VAREDIT) != 0 && item.Ptr.PtrData) delete item.Ptr.PtrData;
+			}
+			delete[] di;
+			di = nullptr;
+		}
+	};
 	WORD Init(WORD nL, WORD wT, WORD wE, BYTE but);
-	short Line(char *t, char *e, short w, const char *mask = NULL);
+	short Line(const char *t, const char *e, short w, const char *mask = NULL);
 	short Exec(void);
 };
 
@@ -2865,11 +2885,11 @@ short EditDialog::Exec(void)
 	return -1;
 }
 
-short EditDialog::Line(char  *t, char *e, short w, const char *mask)
+short EditDialog::Line(const char *t, const char *e, short w, const char *mask)
 {
 	if (iLast == nItems) return 0;
 	di[iLast].Type = DI_TEXT; di[iLast].X1 = 4; di[iLast].Y1 = yLine;
-	FSF.sprintf(di[iLast].Data, "%*s", wText, t);
+	FSF.snprintf(di[iLast].Data, sizeof(di[iLast].Data), "%*s", wText, t);
 	++iLast; di[iLast].X1 = wText + 5; if (yLine == 2) di[iLast].Focus = true;
 	di[iLast].Type = DI_EDIT;
 	if (mask) {
@@ -2877,8 +2897,19 @@ short EditDialog::Line(char  *t, char *e, short w, const char *mask)
 		di[iLast].Mask = mask;
 		di[iLast].Flags = DIF_MASKEDIT;
 	}
-	di[iLast].X2 = (w > wEdit) ? wEdit : w;
-	di[iLast].X2 += di[iLast].X1 - 1; di[iLast].Y1 = yLine; lstrcpy(di[iLast].Data, e);
+	di[iLast].X2 = w < wEdit ? w + (mask ? 0 : 1) : wEdit;
+	di[iLast].X2 += di[iLast].X1 - 1; di[iLast].Y1 = yLine;
+	if (w < 512) // sizeof(FarDialogItem::Data)
+	{
+		lstrcpyn(di[iLast].Data, e, 512);
+	}
+	else
+	{
+		di[iLast].Flags |= DIF_VAREDIT;
+		di[iLast].Ptr.PtrLength = w + 1;
+		di[iLast].Ptr.PtrData = new char[di[iLast].Ptr.PtrLength];
+		lstrcpyn(di[iLast].Ptr.PtrData, e, di[iLast].Ptr.PtrLength);
+	}
 	++iLast; ++yLine; return iLast - 1;
 }
 
@@ -2923,7 +2954,6 @@ WORD EditDialog::Init(WORD nL, WORD wT, WORD wE, BYTE but)
 WORD LOOK::EditRecord(void)
 {
 	short i, j, nL, nD, dL, rL, wT, wE;
-	char *r, s[384];
 	BYTE but;
 	Column *c = (Column *) coFirst->Head();
 	if (db.Read(recV[curY])) { ShowError(2); return 1; }
@@ -2948,6 +2978,7 @@ WORD LOOK::EditRecord(void)
 	}
 	c = (Column *) coFirst->Head();
 	for (i = 0; c; c = (Column *) c->Next()) {
+		char s[MAX_DBFIELD_LENGTH];
 		db.FiNum(c->finum); wE = db.FiWidth(); db.FiDispE(s);
 		if (Yes(WinCode) && db.FiChar())ToOem(s);
 		for (j = 0; !j;) {
@@ -2971,7 +3002,9 @@ WORD LOOK::EditRecord(void)
 		return 1;
 	}
 	for (c = (Column *) coFirst->Head(); c; c = (Column *) c->Next()) {
-		db.FiNum(c->finum); r = ed[c->dinum].di[c->idnum].Data;
+		db.FiNum(c->finum);
+		auto di = ed[c->dinum].di[c->idnum];
+		auto r = (di.Flags & DIF_VAREDIT) != 0 && di.Ptr.PtrData ? di.Ptr.PtrData : di.Data;
 		if (Yes(WinCode) && db.FiChar())ToAlt(r);
 		db.SetField(r);
 	}
@@ -3015,7 +3048,7 @@ WORD LOOK::ActualSelected(BYTE a)
 
 void LOOK::Clipboard(void)
 {
-	char s[512];
+	char s[MAX_DBFIELD_LENGTH];
 	if (db.Read(recV[curY])) { ShowError(2); return; }
 	db.FiNum(coCurr->finum); s[0] = 0; db.FiDisp(s);
 	if (Yes(WinCode) && db.FiChar())ToOem(s);
@@ -4030,7 +4063,7 @@ static LONG_PTR WINAPI DiProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			Q = data->GoUp(data->sh >> 2); goto Q_EXEC;
 		case KEY_PGUP:
 			Q = data->GoUp(data->sh - 3); goto Q_EXEC;
-		case KEY_CTRLPGUP:
+		case KEY_CTRLPGUP: case KEY_RCTRL | KEY_PGUP:
 			Q = data->GoTop(); goto Q_EXEC;
 		case KEY_DOWN:
 			Q = data->GoDn(1); goto Q_EXEC;
@@ -4038,15 +4071,15 @@ static LONG_PTR WINAPI DiProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			Q = data->GoDn(data->sh >> 2); goto Q_EXEC;
 		case KEY_PGDN:
 			Q = data->GoDn(data->sh - 3); goto Q_EXEC;
-		case KEY_CTRLPGDN:
+		case KEY_CTRLPGDN: case KEY_RCTRL | KEY_PGDN:
 			Q = data->GoBot(); goto Q_EXEC;
-		case KEY_CTRLEND:
+		case KEY_CTRLEND: case KEY_RCTRL | KEY_END:
 			Q = data->GoBot() | data->GoLast(); goto Q_EXEC;
 		case KEY_LEFT:
 			Q = data->GoLeft(); goto Q_EXEC;
 		case KEY_HOME:
 			Q = data->GoFirst(); goto Q_EXEC;
-		case KEY_CTRLHOME:
+		case KEY_CTRLHOME: case KEY_RCTRL | KEY_HOME:
 			Q = data->GoTop() | data->GoFirst(); goto Q_EXEC;
 		case KEY_RIGHT:
 			Q = data->GoRight(); goto Q_EXEC;
@@ -4167,6 +4200,7 @@ Q_EXEC: //---------------- Execute Navigation Result-----------
 
 		case KEY_ALTF1:          // Configure
 			Configure(-1); data->GetConfig(true);
+			data->InitColumns();
 			data->KeyShow(); data->ShowStatus(-1);
 			data->ShowPage();
 			break;

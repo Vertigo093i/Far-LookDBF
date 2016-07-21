@@ -70,6 +70,12 @@
     <None Include="src\LookDBF.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="file_id.diz" />
+    <None Include="read_me.eng" />
+    <None Include="read_me.rus" />
+    <None Include="README.md" />
+    <None Include="whatsnew.eng" />
+    <None Include="whatsnew.rus" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LookDBF_en.lng">

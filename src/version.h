@@ -1,8 +1,8 @@
 #include "farversion.hpp"
 
 #define PLUGIN_MAJOR_VER 2
-#define PLUGIN_MINOR_VER 7
-#define PLUGIN_BUILD 1
+#define PLUGIN_MINOR_VER 8
+#define PLUGIN_BUILD 0
 #define PLUGIN_NAME "LookDBF"
 #define PLUGIN_FILENAME PLUGIN_NAME ".dll"
 #define PLUGIN_DESC PLUGIN_NAME " Plugin for Far Manager"

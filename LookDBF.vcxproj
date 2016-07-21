@@ -89,6 +89,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>src\LookDBF.def</ModuleDefinitionFile>
@@ -107,6 +108,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>src\LookDBF.def</ModuleDefinitionFile>
@@ -179,11 +181,19 @@
     <ClInclude Include="src\version.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\LookDBF.def" />
+    <None Include="file_id.diz" />
+    <None Include="read_me.eng" />
+    <None Include="read_me.rus" />
+    <None Include="README.md" />
+    <None Include="whatsnew.eng" />
+    <None Include="whatsnew.rus" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="LookDBF_en.hlf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <FileType>Document</FileType>
     </Content>
-    <None Include="src\LookDBF.def" />
     <Content Include="LookDBF_en.lng">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <FileType>Document</FileType>
